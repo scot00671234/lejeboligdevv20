@@ -45,14 +45,13 @@ RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --ingroup nodejs nodejs
 
-# Copy built application and startup script
+# Copy built application
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/start.sh ./
 COPY --from=deps /app/node_modules ./node_modules
 
-# Make startup script executable and set ownership
-RUN chmod +x start.sh && chown -R nodejs:nodejs /app
+# Set ownership
+RUN chown -R nodejs:nodejs /app
 
 # Switch to non-root user
 USER nodejs
@@ -64,5 +63,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:5000/health || exit 1
 
-# Start the application using startup script
-CMD ["./start.sh"]
+# Start the application directly
+CMD ["node", "dist/index.js"]
