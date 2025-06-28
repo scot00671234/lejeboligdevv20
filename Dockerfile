@@ -31,8 +31,8 @@ COPY . .
 ENV NODE_ENV=production
 ENV CI=true
 
-# Build with timeout and better error handling
-RUN timeout 1200 npm run build || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+# Build with timeout and better error handling - use production server
+RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
 
 # Production image
 FROM base AS runner
