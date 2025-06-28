@@ -8,7 +8,8 @@ import rateLimit from 'express-rate-limit';
 const app = express();
 
 // Trust proxy for rate limiting and security (needed for Coolify/reverse proxy setups)
-app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
+// In development, we still need to trust proxy due to Replit's forwarding
+app.set('trust proxy', true);
 
 // Security middleware - adjusted for development and production
 app.use(helmet({
