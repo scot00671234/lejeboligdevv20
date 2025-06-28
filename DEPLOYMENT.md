@@ -1,276 +1,97 @@
-# Production Deployment Guide for Lejebolig Nu
+# Production Deployment Guide
 
-## Pre-Deployment Checklist
+## Coolify Deployment Configuration
 
-### Environment Configuration
-- [ ] Set `DATABASE_URL` (PostgreSQL connection string)
-- [ ] Set `JWT_SECRET` (minimum 32 characters)
-- [ ] Set `SESSION_SECRET` (minimum 32 characters)
-- [ ] Set `NODE_ENV=production`
-- [ ] Set `ALLOWED_ORIGINS` (your domain URLs)
+Your Danish rental property platform is now production-ready. Here's how to deploy it properly on Coolify:
 
-### Security Verification
-- [ ] Rate limiting configured
-- [ ] CORS properly set
-- [ ] Helmet security headers enabled
-- [ ] Password hashing with bcrypt
-- [ ] JWT authentication implemented
+### Environment Variables Required
 
-## Coolify Deployment Steps
+Set these environment variables in your Coolify deployment:
 
-### 1. Repository Setup
 ```bash
-# Push all code to your Git repository
-git add .
-git commit -m "Production ready deployment"
-git push origin main
-```
-
-### 2. Coolify Project Configuration
-- **Source**: Connect your Git repository
-- **Build Command**: `npm run build`
-- **Start Command**: `npm start`
-- **Port**: `5000`
-- **Health Check**: `/health`
-
-### 3. Environment Variables in Coolify
-```
-DATABASE_URL=postgresql://user:password@host:5432/database
-JWT_SECRET=your-secure-jwt-secret-minimum-32-characters
-SESSION_SECRET=your-secure-session-secret-minimum-32-characters
 NODE_ENV=production
+DATABASE_URL=postgresql://username:password@host:port/database
+JWT_SECRET=your-secure-jwt-secret-at-least-32-characters
+SESSION_SECRET=your-secure-session-secret-at-least-32-characters
 ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+BCRYPT_ROUNDS=12
 ```
 
-### 4. Database Setup
-After first deployment, run:
-```bash
-npm run db:push
-```
+### Deployment Type
 
-## Manual Ubuntu VPS Deployment
+**Important**: Configure as a **Docker Application**, NOT a Static Site.
 
-### Prerequisites
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
+Your app is a full-stack Node.js application with:
+- Express.js backend API
+- React frontend (server-side rendered)
+- PostgreSQL database integration
+- JWT authentication
 
-# Install Node.js 20
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
+### Docker Configuration
 
-# Install PostgreSQL
-sudo apt-get install postgresql postgresql-contrib
+The included `Dockerfile` and `docker-compose.yml` are optimized for production:
 
-# Install PM2 for process management
-npm install -g pm2
-
-# Install Nginx (optional, for reverse proxy)
-sudo apt-get install nginx
-```
-
-### Application Deployment
-```bash
-# Clone repository
-git clone <your-repo-url>
-cd lejebolig-nu
-
-# Install dependencies
-npm ci --only=production
-
-# Set environment variables
-cp .env.example .env
-# Edit .env with your production values
-
-# Build application
-npm run build
-
-# Deploy database schema
-npm run db:push
-
-# Start with PM2
-pm2 start npm --name "lejebolig-nu" -- start
-pm2 save
-pm2 startup
-```
-
-### Nginx Configuration (Optional)
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-    
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-## Docker Deployment
-
-### Build and Run
-```bash
-# Build image
-docker build -t lejebolig-nu .
-
-# Run with environment variables
-docker run -d \
-  --name lejebolig-nu \
-  -p 5000:5000 \
-  -e DATABASE_URL=your_database_url \
-  -e JWT_SECRET=your_jwt_secret \
-  -e SESSION_SECRET=your_session_secret \
-  -e NODE_ENV=production \
-  lejebolig-nu
-```
-
-### Docker Compose
-```bash
-# Start services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-## Post-Deployment Verification
+- Multi-stage build for smaller image size
+- Non-root user for security
+- Health checks for container monitoring
+- Proper environment variable handling
 
 ### Health Checks
-- [ ] Visit `/health` endpoint - should return status OK
-- [ ] Visit `/ready` endpoint - should return Ready
-- [ ] Test user registration
-- [ ] Test user login
-- [ ] Test property creation (landlord)
-- [ ] Test property search (tenant)
-- [ ] Test messaging system
-- [ ] Test favorites functionality
 
-### Performance Tests
-- [ ] Page load times under 3 seconds
-- [ ] API response times under 500ms
-- [ ] Database queries optimized
-- [ ] Static assets properly cached
+Your app includes production health check endpoints:
+- `/health` - Basic health status
+- `/ready` - Database connectivity check
 
-### Security Tests
-- [ ] HTTPS enabled (if using custom domain)
-- [ ] Rate limiting working
-- [ ] CORS headers present
-- [ ] Security headers present
-- [ ] Authentication working
-- [ ] Authorization working
+### Security Features Included
 
-## Monitoring
+✅ **Helmet.js** - Security headers
+✅ **CORS** - Cross-origin protection
+✅ **Rate Limiting** - API protection
+✅ **JWT Authentication** - Secure user sessions
+✅ **Password Hashing** - bcrypt with configurable rounds
+✅ **Input Validation** - Zod schema validation
 
-### Application Logs
+### Database Setup
+
+Before deployment, ensure:
+1. PostgreSQL database is provisioned
+2. Database tables are created (run migrations)
+3. DATABASE_URL environment variable is set
+
+### Port Configuration
+
+The application runs on port **5000** internally. Coolify will handle external port mapping automatically.
+
+### Build Process
+
+The build process:
+1. Installs Node.js dependencies
+2. Builds React frontend with Vite
+3. Bundles Express backend with esbuild
+4. Creates production-optimized Docker image
+
+### Troubleshooting
+
+If deployment fails:
+
+1. **Check Environment Variables**: Ensure all required variables are set
+2. **Database Connection**: Verify DATABASE_URL is correct
+3. **Memory Limits**: Increase if build fails (minimum 512MB recommended)
+4. **Build Timeout**: Increase build timeout for initial deployment
+
+### Testing Deployment
+
+Use the included `production-test.js` script to verify deployment:
+
 ```bash
-# PM2 logs
-pm2 logs lejebolig-nu
-
-# Docker logs
-docker logs lejebolig-nu
-
-# System logs
-sudo journalctl -u nginx
+TEST_URL=https://yourdomain.com node production-test.js
 ```
 
-### Database Monitoring
-```bash
-# PostgreSQL status
-sudo systemctl status postgresql
+This tests:
+- Health endpoints
+- Frontend loading
+- API functionality
+- Rate limiting
+- Database connectivity
 
-# Database connections
-sudo -u postgres psql -c "SELECT * FROM pg_stat_activity;"
-```
-
-## Backup Strategy
-
-### Database Backup
-```bash
-# Create backup
-pg_dump DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
-
-# Restore backup
-psql DATABASE_URL < backup_file.sql
-```
-
-### Application Backup
-```bash
-# Backup application files
-tar -czf app_backup_$(date +%Y%m%d_%H%M%S).tar.gz /path/to/lejebolig-nu
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Errors**
-   - Verify DATABASE_URL format
-   - Check PostgreSQL service status
-   - Verify network connectivity
-
-2. **JWT Token Errors**
-   - Ensure JWT_SECRET is set and minimum 32 characters
-   - Check token expiration settings
-
-3. **Build Failures**
-   - Verify Node.js version (20+)
-   - Check npm dependencies
-   - Review build logs
-
-4. **Performance Issues**
-   - Monitor database queries
-   - Check memory usage
-   - Review server logs
-
-### Support Commands
-```bash
-# Check application status
-curl http://localhost:5000/health
-
-# Test database connection
-npm run db:push
-
-# View application logs
-pm2 logs lejebolig-nu --lines 100
-
-# Restart application
-pm2 restart lejebolig-nu
-```
-
-## Scaling Considerations
-
-### Load Balancing
-- Use Nginx or HAProxy for load balancing
-- Configure session affinity if needed
-- Implement health checks
-
-### Database Scaling
-- Use read replicas for read-heavy workloads
-- Implement connection pooling
-- Consider database sharding for large datasets
-
-### Caching
-- Implement Redis for session storage
-- Add CDN for static assets
-- Use application-level caching
-
-## Security Hardening
-
-### Server Security
-- Keep system updated
-- Use fail2ban for intrusion prevention
-- Configure firewall (UFW)
-- Regular security audits
-
-### Application Security
-- Regular dependency updates
-- Security headers validation
-- Input validation and sanitization
-- Regular security scans
+Your app is now fully production-ready with enterprise-grade security and monitoring!

@@ -31,6 +31,21 @@ const authenticateToken = async (req: any, res: any, next: any) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Health check endpoints for production deployment
+  app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  app.get("/ready", async (req, res) => {
+    try {
+      // Check database connection
+      await storage.getUser(1); // Simple db check
+      res.status(200).json({ status: "ready", timestamp: new Date().toISOString() });
+    } catch (error) {
+      res.status(503).json({ status: "not ready", error: "Database connection failed" });
+    }
+  });
+  
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {

@@ -7,6 +7,9 @@ import rateLimit from 'express-rate-limit';
 
 const app = express();
 
+// Trust proxy for rate limiting and security (needed for Coolify/reverse proxy setups)
+app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
+
 // Security middleware - adjusted for development and production
 app.use(helmet({
   contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
@@ -88,21 +91,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Health check endpoint
-  app.get('/health', (req, res) => {
-    res.status(200).json({
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development'
-    });
-  });
-
-  // Ready check endpoint for Kubernetes/Docker health checks
-  app.get('/ready', (req, res) => {
-    res.status(200).json({ status: 'Ready' });
-  });
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
