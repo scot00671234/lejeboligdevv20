@@ -1,0 +1,155 @@
+2025-Jun-29 13:36:33.465810
+Starting deployment of scot00671234/lejeboligdevv20:main to localhost.
+2025-Jun-29 13:36:33.764574
+Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.8.
+2025-Jun-29 13:36:33.946178
+[CMD]: docker stop --time=30 jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:36:33.946178
+Error response from daemon: No such container: jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:36:34.181716
+[CMD]: docker rm -f jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:36:34.181716
+Error response from daemon: No such container: jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:36:34.521154
+[CMD]: docker run -d --network coolify --name jsggoowsogswoccwggkk8sws --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/coollabsio/coolify-helper:1.0.8
+2025-Jun-29 13:36:34.521154
+7ae92325e030f3a9aa4cb6eff9ffbd49f2b9c8a47cb43fe321476de1178d142a
+2025-Jun-29 13:36:37.834242
+[CMD]: docker exec jsggoowsogswoccwggkk8sws bash -c 'GIT_SSH_COMMAND="ssh -o ConnectTimeout=30 -p 22 -o Port=22 -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote https://x-access-token:<REDACTED>@github.com/scot00671234/lejeboligdevv20.git main'
+2025-Jun-29 13:36:37.834242
+9a85abc2455f271115a1b8dd07e6043c015be6c9	refs/heads/main
+2025-Jun-29 13:36:38.316479
+----------------------------------------
+2025-Jun-29 13:36:38.326429
+Importing scot00671234/lejeboligdevv20:main (commit sha HEAD) to /artifacts/jsggoowsogswoccwggkk8sws.
+2025-Jun-29 13:36:38.690028
+[CMD]: docker exec jsggoowsogswoccwggkk8sws bash -c 'git clone -b "main" https://x-access-token:<REDACTED>@github.com/scot00671234/lejeboligdevv20.git /artifacts/jsggoowsogswoccwggkk8sws && cd /artifacts/jsggoowsogswoccwggkk8sws && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git submodule update --init --recursive && cd /artifacts/jsggoowsogswoccwggkk8sws && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git lfs pull'
+2025-Jun-29 13:36:38.690028
+Cloning into '/artifacts/jsggoowsogswoccwggkk8sws'...
+2025-Jun-29 13:36:40.982072
+[CMD]: docker exec jsggoowsogswoccwggkk8sws bash -c 'cd /artifacts/jsggoowsogswoccwggkk8sws && git log -1 9a85abc2455f271115a1b8dd07e6043c015be6c9 --pretty=%B'
+2025-Jun-29 13:36:40.982072
+Improve production build process and address Vite dependency issue
+2025-Jun-29 13:36:40.990705
+Replaces inline server creation with esbuild, omits dev dependencies, and fixes `ERR_MODULE_NOT_FOUND` by ensuring vite is not bundled in `dist/index.js`.
+2025-Jun-29 13:36:40.990705
+2025-Jun-29 13:36:40.990705
+Replit-Commit-Author: Agent
+2025-Jun-29 13:36:40.990705
+Replit-Commit-Session-Id: 320e3090-bb51-4105-a495-1ae49edd3e80
+2025-Jun-29 13:36:40.990705
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/f797b8ff-078b-40bc-82b2-450968515535/a0ae190b-404e-4911-b31b-c725eb1f7ed7.jpg
+2025-Jun-29 13:36:41.155098
+[CMD]: docker images -q t8wsww4occo048kc4w8gg80w:9a85abc2455f271115a1b8dd07e6043c015be6c9 2>/dev/null
+2025-Jun-29 13:36:41.155098
+2c9910b81edf
+2025-Jun-29 13:36:41.164190
+No configuration changed & image found (t8wsww4occo048kc4w8gg80w:9a85abc2455f271115a1b8dd07e6043c015be6c9) with the same Git Commit SHA. Build step skipped.
+2025-Jun-29 13:36:42.653295
+[CMD]: docker exec jsggoowsogswoccwggkk8sws bash -c 'cat /artifacts/jsggoowsogswoccwggkk8sws/Dockerfile'
+2025-Jun-29 13:36:42.653295
+# Simple Node.js production build - clean approach
+2025-Jun-29 13:36:42.653295
+FROM node:20-alpine
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+WORKDIR /app
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Install system dependencies
+2025-Jun-29 13:36:42.653295
+RUN apk add --no-cache curl
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Copy package files
+2025-Jun-29 13:36:42.653295
+COPY package*.json ./
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Install ALL dependencies first (dev + prod for build)
+2025-Jun-29 13:36:42.653295
+RUN npm ci --timeout=600000
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Copy source code
+2025-Jun-29 13:36:42.653295
+COPY . .
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Build frontend only
+2025-Jun-29 13:36:42.653295
+RUN npx vite build
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Build backend using esbuild - targeting the production server (do this before removing dev deps)
+2025-Jun-29 13:36:42.653295
+RUN npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Clean up dev dependencies, keep only production
+2025-Jun-29 13:36:42.653295
+RUN npm ci --omit=dev --timeout=600000
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Create non-root user
+2025-Jun-29 13:36:42.653295
+RUN addgroup --system --gid 1001 nodejs && \
+2025-Jun-29 13:36:42.653295
+adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+# Set ownership
+2025-Jun-29 13:36:42.653295
+RUN chown -R nodejs:nodejs /app
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+USER nodejs
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+EXPOSE 5000
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+2025-Jun-29 13:36:42.653295
+CMD curl -f http://localhost:5000/health || exit 1
+2025-Jun-29 13:36:42.653295
+2025-Jun-29 13:36:42.653295
+CMD ["node", "server-prod.js"]
+2025-Jun-29 13:36:43.270193
+----------------------------------------
+2025-Jun-29 13:36:43.288799
+Application has ports mapped to the host system, rolling update is not supported.
+2025-Jun-29 13:36:43.293417
+Removing old containers.
+2025-Jun-29 13:37:14.092208
+[CMD]: docker stop --time=30 t8wsww4occo048kc4w8gg80w-110438333899
+2025-Jun-29 13:37:14.092208
+t8wsww4occo048kc4w8gg80w-110438333899
+2025-Jun-29 13:37:14.300246
+[CMD]: docker rm -f t8wsww4occo048kc4w8gg80w-110438333899
+2025-Jun-29 13:37:14.300246
+t8wsww4occo048kc4w8gg80w-110438333899
+2025-Jun-29 13:37:14.610913
+[CMD]: docker exec jsggoowsogswoccwggkk8sws bash -c 'SOURCE_COMMIT=9a85abc2455f271115a1b8dd07e6043c015be6c9 COOLIFY_FQDN=http://t8wsww4occo048kc4w8gg80w.147.93.87.98.sslip.io COOLIFY_URL=t8wsww4occo048kc4w8gg80w.147.93.87.98.sslip.io COOLIFY_BRANCH=main  docker compose --project-name t8wsww4occo048kc4w8gg80w --project-directory /artifacts/jsggoowsogswoccwggkk8sws -f /artifacts/jsggoowsogswoccwggkk8sws/docker-compose.yaml up --build -d'
+2025-Jun-29 13:37:14.610913
+Container t8wsww4occo048kc4w8gg80w-133632218229  Creating
+2025-Jun-29 13:37:14.680170
+t8wsww4occo048kc4w8gg80w-133632218229 Your kernel does not support memory swappiness capabilities or the cgroup is not mounted. Memory swappiness discarded.
+2025-Jun-29 13:37:14.685992
+Container t8wsww4occo048kc4w8gg80w-133632218229  Created
+2025-Jun-29 13:37:14.685992
+Container t8wsww4occo048kc4w8gg80w-133632218229  Starting
+2025-Jun-29 13:37:14.944129
+Container t8wsww4occo048kc4w8gg80w-133632218229  Started
+2025-Jun-29 13:37:14.964045
+New container started.
+2025-Jun-29 13:37:15.862118
+Gracefully shutting down build container: jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:37:16.179249
+[CMD]: docker stop --time=30 jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:37:16.179249
+jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:37:16.449064
+[CMD]: docker rm -f jsggoowsogswoccwggkk8sws
+2025-Jun-29 13:37:16.449064
+Error response from daemon: No such container: jsggoowsogswoccwggkk8sws
