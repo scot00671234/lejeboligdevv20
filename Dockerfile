@@ -18,38 +18,11 @@ COPY . .
 # Build frontend only
 RUN npx vite build
 
+# Build backend using esbuild - targeting the production server (do this before removing dev deps)
+RUN npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js
+
 # Clean up dev dependencies, keep only production
 RUN npm ci --omit=dev --timeout=600000
-
-# Create simple production server inline (no external files)
-RUN echo 'import express from "express";\
-import { registerRoutes } from "./server/routes.js";\
-import path from "path";\
-import { fileURLToPath } from "url";\
-\
-const __filename = fileURLToPath(import.meta.url);\
-const __dirname = path.dirname(__filename);\
-const app = express();\
-\
-app.set("trust proxy", 1);\
-app.get("/health", (req, res) => res.json({ status: "ok" }));\
-app.get("/ready", (req, res) => res.json({ status: "ready" }));\
-app.use(express.static(path.join(__dirname, "dist/public")));\
-app.use(express.json({ limit: "10mb" }));\
-app.use(express.urlencoded({ extended: true }));\
-\
-async function start() {\
-  const server = await registerRoutes(app);\
-  app.get("*", (req, res) => {\
-    res.sendFile(path.join(__dirname, "dist/public/index.html"));\
-  });\
-  const port = parseInt(process.env.PORT || "5000", 10);\
-  server.listen(port, "0.0.0.0", () => {\
-    console.log(`Server running on port ${port}`);\
-  });\
-}\
-\
-start().catch(console.error);' > server-prod.js
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
