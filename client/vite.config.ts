@@ -13,14 +13,22 @@ export default defineConfig({
   build: {
     outDir: "../dist/public",
     emptyOutDir: true,
-    target: 'es2015',
-    chunkSizeWarningLimit: 1000,
+    target: 'es2020',
+    minify: false, // Disable minification for faster builds
+    sourcemap: false,
+    chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Bundle all Lucide React icons into one chunk to prevent build hanging
-          if (id.includes('lucide-react')) {
-            return 'lucide-icons';
+          // Separate chunks to prevent build hanging
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'icons';
+          }
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'ui-lib';
           }
           if (id.includes('node_modules')) {
             return 'vendor';
@@ -28,5 +36,8 @@ export default defineConfig({
         },
       },
     },
+  },
+  esbuild: {
+    target: 'es2020',
   },
 });
