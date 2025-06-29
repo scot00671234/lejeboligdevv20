@@ -64,25 +64,33 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 function findStaticFilesPath(): string {
+  // Primary production paths - order matters for reliability
   const possiblePaths = [
-    path.join(__dirname, '../dist/public'),  // Vite default build output
-    path.join(__dirname, '../dist'),         // Alternative location
-    path.join(__dirname, '../build'),        // CRA style build
-    path.join(process.cwd(), 'dist/public'), // Working directory based
-    path.join(process.cwd(), 'dist'),        // Working directory alternative
-    path.join(process.cwd(), 'build'),       // Working directory CRA style
+    path.join(process.cwd(), 'dist/public'), // Docker working directory (primary)
+    path.join(__dirname, '../dist/public'),  // Development relative path
+    path.join(__dirname, '../../dist/public'), // If server is in nested build dir
+    path.join(process.cwd(), 'dist'),        // Fallback without public subdirectory
   ];
 
   for (const testPath of possiblePaths) {
     const indexPath = path.join(testPath, 'index.html');
     if (fs.existsSync(indexPath)) {
       console.log(`Found static files at: ${testPath}`);
+      console.log(`Index file verified at: ${indexPath}`);
       return testPath;
+    } else {
+      console.log(`Static path not found: ${testPath} (index.html missing)`);
     }
   }
 
-  console.warn('No static files found. Build may be missing.');
-  return possiblePaths[0]; // Return default even if not found
+  console.error('CRITICAL: No static files found at any expected location!');
+  console.error('Expected locations checked:');
+  possiblePaths.forEach(p => console.error(`  - ${p}`));
+  console.error('Current working directory:', process.cwd());
+  console.error('Script directory:', __dirname);
+  
+  // Return the primary expected path even if not found for better error reporting
+  return possiblePaths[0];
 }
 
 async function startServer() {
