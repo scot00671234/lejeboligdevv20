@@ -1,0 +1,777 @@
+2025-Jun-28 19:23:50.010817
+Starting deployment of scot00671234/lejeboligdevv20:main to localhost.
+2025-Jun-28 19:23:50.731312
+Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.8.
+2025-Jun-28 19:23:51.026316
+[CMD]: docker stop --time=30 x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:23:51.026316
+Error response from daemon: No such container: x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:23:51.466159
+[CMD]: docker rm -f x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:23:51.466159
+Error response from daemon: No such container: x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:23:51.907985
+[CMD]: docker run -d --network coolify --name x8g044o0g0kwcg840gksk84k --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/coollabsio/coolify-helper:1.0.8
+2025-Jun-28 19:23:51.907985
+738fe0573579dfc404646420187414be857d76d75256975859d5d508a51a189c
+2025-Jun-28 19:23:54.822716
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'GIT_SSH_COMMAND="ssh -o ConnectTimeout=30 -p 22 -o Port=22 -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote https://x-access-token:<REDACTED>@github.com/scot00671234/lejeboligdevv20.git main'
+2025-Jun-28 19:23:54.822716
+2d8749a0726b1470096da211e882eacab20dc2ae	refs/heads/main
+2025-Jun-28 19:23:55.185092
+----------------------------------------
+2025-Jun-28 19:23:55.199168
+Importing scot00671234/lejeboligdevv20:main (commit sha HEAD) to /artifacts/x8g044o0g0kwcg840gksk84k.
+2025-Jun-28 19:23:55.582243
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'git clone -b "main" https://x-access-token:<REDACTED>@github.com/scot00671234/lejeboligdevv20.git /artifacts/x8g044o0g0kwcg840gksk84k && cd /artifacts/x8g044o0g0kwcg840gksk84k && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git submodule update --init --recursive && cd /artifacts/x8g044o0g0kwcg840gksk84k && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git lfs pull'
+2025-Jun-28 19:23:55.582243
+Cloning into '/artifacts/x8g044o0g0kwcg840gksk84k'...
+2025-Jun-28 19:23:57.636453
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'cd /artifacts/x8g044o0g0kwcg840gksk84k && git log -1 2d8749a0726b1470096da211e882eacab20dc2ae --pretty=%B'
+2025-Jun-28 19:23:57.636453
+Merge branch 'main' of https://github.com/scot00671234/lejeboligdevv20
+2025-Jun-28 19:23:57.959199
+Image not found (t8wsww4occo048kc4w8gg80w:2d8749a0726b1470096da211e882eacab20dc2ae). Building new image.
+2025-Jun-28 19:24:00.498188
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'cat /artifacts/x8g044o0g0kwcg840gksk84k/Dockerfile'
+2025-Jun-28 19:24:00.498188
+# Use Node.js 20 Alpine for smaller image size
+2025-Jun-28 19:24:00.498188
+FROM node:20-alpine AS base
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Install system dependencies including curl for health checks
+2025-Jun-28 19:24:00.498188
+RUN apk add --no-cache curl
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Install dependencies
+2025-Jun-28 19:24:00.498188
+FROM base AS deps
+2025-Jun-28 19:24:00.498188
+WORKDIR /app
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Copy package files
+2025-Jun-28 19:24:00.498188
+COPY package*.json ./
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Install dependencies with increased timeout and retry logic
+2025-Jun-28 19:24:00.498188
+RUN npm ci --omit=dev --timeout=600000 && npm cache clean --force
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Build the application
+2025-Jun-28 19:24:00.498188
+FROM base AS builder
+2025-Jun-28 19:24:00.498188
+WORKDIR /app
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Copy package files
+2025-Jun-28 19:24:00.498188
+COPY package*.json ./
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Install all dependencies (including devDependencies for build)
+2025-Jun-28 19:24:00.498188
+RUN npm ci --timeout=600000
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Copy source code
+2025-Jun-28 19:24:00.498188
+COPY . .
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Set build environment
+2025-Jun-28 19:24:00.498188
+ENV NODE_ENV=production
+2025-Jun-28 19:24:00.498188
+ENV CI=true
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Build with timeout and better error handling - use production server
+2025-Jun-28 19:24:00.498188
+RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Production image
+2025-Jun-28 19:24:00.498188
+FROM base AS runner
+2025-Jun-28 19:24:00.498188
+WORKDIR /app
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Install curl for health checks
+2025-Jun-28 19:24:00.498188
+RUN apk add --no-cache curl
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Create non-root user
+2025-Jun-28 19:24:00.498188
+RUN addgroup --system --gid 1001 nodejs && \
+2025-Jun-28 19:24:00.498188
+adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Copy built application
+2025-Jun-28 19:24:00.498188
+COPY --from=builder /app/dist ./dist
+2025-Jun-28 19:24:00.498188
+COPY --from=builder /app/package*.json ./
+2025-Jun-28 19:24:00.498188
+COPY --from=deps /app/node_modules ./node_modules
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Set ownership
+2025-Jun-28 19:24:00.498188
+RUN chown -R nodejs:nodejs /app
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Switch to non-root user
+2025-Jun-28 19:24:00.498188
+USER nodejs
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Expose port
+2025-Jun-28 19:24:00.498188
+EXPOSE 5000
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Health check with proper timeout
+2025-Jun-28 19:24:00.498188
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+2025-Jun-28 19:24:00.498188
+CMD curl -f http://localhost:5000/health || exit 1
+2025-Jun-28 19:24:00.498188
+2025-Jun-28 19:24:00.498188
+# Start the application directly
+2025-Jun-28 19:24:00.498188
+CMD ["node", "dist/index.js"]
+2025-Jun-28 19:24:02.016274
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'cat /artifacts/x8g044o0g0kwcg840gksk84k/Dockerfile'
+2025-Jun-28 19:24:02.016274
+# Use Node.js 20 Alpine for smaller image size
+2025-Jun-28 19:24:02.016274
+FROM node:20-alpine AS base
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Install system dependencies including curl for health checks
+2025-Jun-28 19:24:02.016274
+RUN apk add --no-cache curl
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Install dependencies
+2025-Jun-28 19:24:02.016274
+FROM base AS deps
+2025-Jun-28 19:24:02.016274
+WORKDIR /app
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Copy package files
+2025-Jun-28 19:24:02.016274
+COPY package*.json ./
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Install dependencies with increased timeout and retry logic
+2025-Jun-28 19:24:02.016274
+RUN npm ci --omit=dev --timeout=600000 && npm cache clean --force
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Build the application
+2025-Jun-28 19:24:02.016274
+FROM base AS builder
+2025-Jun-28 19:24:02.016274
+WORKDIR /app
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Copy package files
+2025-Jun-28 19:24:02.016274
+COPY package*.json ./
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Install all dependencies (including devDependencies for build)
+2025-Jun-28 19:24:02.016274
+RUN npm ci --timeout=600000
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Copy source code
+2025-Jun-28 19:24:02.016274
+COPY . .
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Set build environment
+2025-Jun-28 19:24:02.016274
+ENV NODE_ENV=production
+2025-Jun-28 19:24:02.016274
+ENV CI=true
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Build with timeout and better error handling - use production server
+2025-Jun-28 19:24:02.016274
+RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Production image
+2025-Jun-28 19:24:02.016274
+FROM base AS runner
+2025-Jun-28 19:24:02.016274
+WORKDIR /app
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Install curl for health checks
+2025-Jun-28 19:24:02.016274
+RUN apk add --no-cache curl
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Create non-root user
+2025-Jun-28 19:24:02.016274
+RUN addgroup --system --gid 1001 nodejs && \
+2025-Jun-28 19:24:02.016274
+adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Copy built application
+2025-Jun-28 19:24:02.016274
+COPY --from=builder /app/dist ./dist
+2025-Jun-28 19:24:02.016274
+COPY --from=builder /app/package*.json ./
+2025-Jun-28 19:24:02.016274
+COPY --from=deps /app/node_modules ./node_modules
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Set ownership
+2025-Jun-28 19:24:02.016274
+RUN chown -R nodejs:nodejs /app
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Switch to non-root user
+2025-Jun-28 19:24:02.016274
+USER nodejs
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Expose port
+2025-Jun-28 19:24:02.016274
+EXPOSE 5000
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Health check with proper timeout
+2025-Jun-28 19:24:02.016274
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+2025-Jun-28 19:24:02.016274
+CMD curl -f http://localhost:5000/health || exit 1
+2025-Jun-28 19:24:02.016274
+2025-Jun-28 19:24:02.016274
+# Start the application directly
+2025-Jun-28 19:24:02.016274
+CMD ["node", "dist/index.js"]
+2025-Jun-28 19:24:02.883694
+----------------------------------------
+2025-Jun-28 19:24:02.894001
+Building docker image started.
+2025-Jun-28 19:24:02.903992
+To check the current progress, click on Show Debug Logs.
+2025-Jun-28 19:24:04.344781
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'cat /artifacts/build.sh'
+2025-Jun-28 19:24:04.344781
+docker build  --add-host coolify:10.0.1.5 --add-host coolify-db:10.0.1.3 --add-host coolify-realtime:10.0.1.4 --add-host coolify-redis:10.0.1.2 --add-host gss4gg0os4ww8g8oggsccgck:10.0.1.8 --add-host jok4gkskoookocscc4w0kcgc:10.0.1.7 --network host -f /artifacts/x8g044o0g0kwcg840gksk84k/Dockerfile --build-arg SOURCE_COMMIT='2d8749a0726b1470096da211e882eacab20dc2ae' --build-arg 'COOLIFY_URL=http://t8wsww4occo048kc4w8gg80w.147.93.87.98.sslip.io' --build-arg 'COOLIFY_FQDN=t8wsww4occo048kc4w8gg80w.147.93.87.98.sslip.io' --build-arg 'COOLIFY_BRANCH=main' --build-arg 'COOLIFY_RESOURCE_UUID=t8wsww4occo048kc4w8gg80w' --build-arg 'COOLIFY_CONTAINER_NAME=t8wsww4occo048kc4w8gg80w-192347930543' --progress plain -t t8wsww4occo048kc4w8gg80w:2d8749a0726b1470096da211e882eacab20dc2ae /artifacts/x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:24:06.009212
+[CMD]: docker exec x8g044o0g0kwcg840gksk84k bash -c 'bash /artifacts/build.sh'
+2025-Jun-28 19:24:06.009212
+#0 building with "default" instance using docker driver
+2025-Jun-28 19:24:06.009212
+2025-Jun-28 19:24:06.009212
+#1 [internal] load build definition from Dockerfile
+2025-Jun-28 19:24:06.009212
+#1 transferring dockerfile: 1.75kB done
+2025-Jun-28 19:24:06.009212
+#1 DONE 0.0s
+2025-Jun-28 19:24:06.009212
+2025-Jun-28 19:24:06.009212
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+2025-Jun-28 19:24:06.629971
+#2 DONE 0.8s
+2025-Jun-28 19:24:06.737279
+#3 [internal] load .dockerignore
+2025-Jun-28 19:24:06.737279
+#3 transferring context: 739B 0.0s done
+2025-Jun-28 19:24:06.737279
+#3 DONE 0.0s
+2025-Jun-28 19:24:06.737279
+2025-Jun-28 19:24:06.737279
+#4 [base 1/2] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+2025-Jun-28 19:24:06.737279
+#4 CACHED
+2025-Jun-28 19:24:06.737279
+2025-Jun-28 19:24:06.737279
+#5 [internal] load build context
+2025-Jun-28 19:24:07.440062
+#5 transferring context: 4.25MB 0.6s done
+2025-Jun-28 19:24:07.440062
+#5 DONE 0.6s
+2025-Jun-28 19:24:07.440062
+2025-Jun-28 19:24:07.440062
+#6 [base 2/2] RUN apk add --no-cache curl
+2025-Jun-28 19:24:07.440062
+#6 0.540 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:24:07.533044
+#6 0.843 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:24:09.415966
+#6 2.728 (1/9) Installing brotli-libs (1.1.0-r2)
+2025-Jun-28 19:24:09.554158
+#6 2.793 (2/9) Installing c-ares (1.34.5-r0)
+2025-Jun-28 19:24:09.554158
+#6 2.810 (3/9) Installing libunistring (1.3-r0)
+2025-Jun-28 19:24:09.554158
+#6 2.866 (4/9) Installing libidn2 (2.3.7-r0)
+2025-Jun-28 19:24:09.680524
+#6 2.877 (5/9) Installing nghttp2-libs (1.65.0-r0)
+2025-Jun-28 19:24:09.680524
+#6 2.886 (6/9) Installing libpsl (0.21.5-r3)
+2025-Jun-28 19:24:09.680524
+#6 2.891 (7/9) Installing zstd-libs (1.5.7-r0)
+2025-Jun-28 19:24:09.680524
+#6 2.930 (8/9) Installing libcurl (8.14.1-r0)
+2025-Jun-28 19:24:09.680524
+#6 2.957 (9/9) Installing curl (8.14.1-r0)
+2025-Jun-28 19:24:09.680524
+#6 2.977 Executing busybox-1.37.0-r18.trigger
+2025-Jun-28 19:24:09.875046
+#6 3.035 OK: 15 MiB in 27 packages
+2025-Jun-28 19:24:10.350807
+#6 DONE 3.7s
+2025-Jun-28 19:24:10.574003
+#7 [deps 1/3] WORKDIR /app
+2025-Jun-28 19:24:10.574003
+#7 DONE 0.1s
+2025-Jun-28 19:24:10.574003
+2025-Jun-28 19:24:10.574003
+#8 [deps 2/3] COPY package*.json ./
+2025-Jun-28 19:24:10.574003
+#8 DONE 0.1s
+2025-Jun-28 19:24:10.574003
+2025-Jun-28 19:24:10.574003
+#9 [runner 2/7] RUN apk add --no-cache curl
+2025-Jun-28 19:24:10.959116
+#9 0.534 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:24:11.396454
+#9 0.953 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:24:15.850342
+#9 5.412 OK: 15 MiB in 27 packages
+2025-Jun-28 19:24:17.150825
+#9 DONE 6.7s
+2025-Jun-28 19:24:17.150825
+2025-Jun-28 19:24:17.150825
+#10 [builder 3/5] RUN npm ci --timeout=600000
+2025-Jun-28 19:24:17.334062
+#10 ...
+2025-Jun-28 19:24:17.334062
+2025-Jun-28 19:24:17.334062
+#11 [runner 3/7] RUN addgroup --system --gid 1001 nodejs &&     adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jun-28 19:24:18.179997
+#11 DONE 1.0s
+2025-Jun-28 19:24:18.179997
+2025-Jun-28 19:24:18.179997
+#12 [deps 3/3] RUN npm ci --omit=dev --timeout=600000 && npm cache clean --force
+2025-Jun-28 19:25:30.568554
+#12 ...
+2025-Jun-28 19:25:30.568554
+2025-Jun-28 19:25:30.568554
+#10 [builder 3/5] RUN npm ci --timeout=600000
+2025-Jun-28 19:25:30.568554
+#10 79.93 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+2025-Jun-28 19:25:30.895294
+#10 80.32 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+2025-Jun-28 19:26:21.704085
+#10 ...
+2025-Jun-28 19:26:21.704085
+2025-Jun-28 19:26:21.704085
+#12 [deps 3/3] RUN npm ci --omit=dev --timeout=600000 && npm cache clean --force
+2025-Jun-28 19:26:21.704085
+#12 131.1
+2025-Jun-28 19:26:21.704085
+#12 131.1 added 394 packages, and audited 395 packages in 2m
+2025-Jun-28 19:26:21.897776
+#12 131.1
+2025-Jun-28 19:26:21.897776
+#12 131.1 53 packages are looking for funding
+2025-Jun-28 19:26:21.897776
+#12 131.1   run `npm fund` for details
+2025-Jun-28 19:26:21.897776
+#12 131.1
+2025-Jun-28 19:26:21.897776
+#12 131.1 1 low severity vulnerability
+2025-Jun-28 19:26:21.897776
+#12 131.1
+2025-Jun-28 19:26:21.897776
+#12 131.1 To address all issues, run:
+2025-Jun-28 19:26:21.897776
+#12 131.1   npm audit fix
+2025-Jun-28 19:26:21.897776
+#12 131.1
+2025-Jun-28 19:26:21.897776
+#12 131.1 Run `npm audit` for details.
+2025-Jun-28 19:26:21.897776
+#12 131.2 npm notice
+2025-Jun-28 19:26:21.897776
+#12 131.2 npm notice New major version of npm available! 10.8.2 -> 11.4.2
+2025-Jun-28 19:26:21.897776
+#12 131.2 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+2025-Jun-28 19:26:21.897776
+#12 131.2 npm notice To update run: npm install -g npm@11.4.2
+2025-Jun-28 19:26:21.897776
+#12 131.2 npm notice
+2025-Jun-28 19:26:23.389713
+#12 132.8 npm warn using --force Recommended protections disabled.
+2025-Jun-28 19:26:30.545632
+#12 DONE 139.9s
+2025-Jun-28 19:26:30.545632
+2025-Jun-28 19:26:30.545632
+#10 [builder 3/5] RUN npm ci --timeout=600000
+2025-Jun-28 19:26:56.243316
+#10 165.7
+2025-Jun-28 19:26:56.243316
+#10 165.7 added 500 packages, and audited 501 packages in 3m
+2025-Jun-28 19:26:56.409004
+#10 165.7
+2025-Jun-28 19:26:56.409004
+#10 165.7 65 packages are looking for funding
+2025-Jun-28 19:26:56.409004
+#10 165.7   run `npm fund` for details
+2025-Jun-28 19:26:56.773073
+#10 166.2
+2025-Jun-28 19:26:56.773073
+#10 166.2 8 vulnerabilities (1 low, 7 moderate)
+2025-Jun-28 19:26:56.773073
+#10 166.2
+2025-Jun-28 19:26:56.773073
+#10 166.2 To address issues that do not require attention, run:
+2025-Jun-28 19:26:56.773073
+#10 166.2   npm audit fix
+2025-Jun-28 19:26:56.773073
+#10 166.2
+2025-Jun-28 19:26:56.773073
+#10 166.2 To address all issues (including breaking changes), run:
+2025-Jun-28 19:26:56.773073
+#10 166.2   npm audit fix --force
+2025-Jun-28 19:26:56.773073
+#10 166.2
+2025-Jun-28 19:26:56.773073
+#10 166.2 Run `npm audit` for details.
+2025-Jun-28 19:26:56.962248
+#10 166.2 npm notice
+2025-Jun-28 19:26:56.962248
+#10 166.2 npm notice New major version of npm available! 10.8.2 -> 11.4.2
+2025-Jun-28 19:26:56.962248
+#10 166.2 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+2025-Jun-28 19:26:56.962248
+#10 166.2 npm notice To update run: npm install -g npm@11.4.2
+2025-Jun-28 19:26:56.962248
+#10 166.2 npm notice
+2025-Jun-28 19:26:57.755575
+#10 DONE 167.2s
+2025-Jun-28 19:26:57.912663
+#13 [builder 4/5] COPY . .
+2025-Jun-28 19:26:58.343111
+#13 DONE 0.6s
+2025-Jun-28 19:26:58.343111
+2025-Jun-28 19:26:58.343111
+#14 [builder 5/5] RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+2025-Jun-28 19:26:58.766094
+#14 0.433 Build failed, checking for partial build...
+2025-Jun-28 19:26:58.882557
+#14 0.433 sh: vite: not found
+2025-Jun-28 19:26:58.882557
+#14 0.433 ls: dist/: No such file or directory
+2025-Jun-28 19:26:58.882557
+#14 ERROR: process "/bin/sh -c timeout 1200 sh -c \"vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist\" || (echo \"Build failed, checking for partial build...\" && ls -la dist/ && exit 1)" did not complete successfully: exit code: 1
+2025-Jun-28 19:27:08.915556
+------
+2025-Jun-28 19:27:08.915556
+> [builder 5/5] RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1):
+2025-Jun-28 19:27:08.915556
+0.433 Build failed, checking for partial build...
+2025-Jun-28 19:27:08.915556
+0.433 sh: vite: not found
+2025-Jun-28 19:27:08.915556
+0.433 ls: dist/: No such file or directory
+2025-Jun-28 19:27:08.915556
+------
+2025-Jun-28 19:27:08.933326
+Dockerfile:35
+2025-Jun-28 19:27:08.933326
+--------------------
+2025-Jun-28 19:27:08.933326
+33 |
+2025-Jun-28 19:27:08.933326
+34 |     # Build with timeout and better error handling - use production server
+2025-Jun-28 19:27:08.933326
+35 | >>> RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+2025-Jun-28 19:27:08.933326
+36 |
+2025-Jun-28 19:27:08.933326
+37 |     # Production image
+2025-Jun-28 19:27:08.933326
+--------------------
+2025-Jun-28 19:27:08.933326
+ERROR: failed to solve: process "/bin/sh -c timeout 1200 sh -c \"vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist\" || (echo \"Build failed, checking for partial build...\" && ls -la dist/ && exit 1)" did not complete successfully: exit code: 1
+2025-Jun-28 19:27:08.964260
+exit status 1
+2025-Jun-28 19:27:09.119567
+Oops something is not okay, are you okay? 😢
+2025-Jun-28 19:27:09.135914
+#0 building with "default" instance using docker driver
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#1 [internal] load build definition from Dockerfile
+2025-Jun-28 19:27:09.135914
+#1 transferring dockerfile: 1.75kB done
+2025-Jun-28 19:27:09.135914
+#1 DONE 0.0s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+2025-Jun-28 19:27:09.135914
+#2 DONE 0.8s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#3 [internal] load .dockerignore
+2025-Jun-28 19:27:09.135914
+#3 transferring context: 739B 0.0s done
+2025-Jun-28 19:27:09.135914
+#3 DONE 0.0s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#4 [base 1/2] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+2025-Jun-28 19:27:09.135914
+#4 CACHED
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#5 [internal] load build context
+2025-Jun-28 19:27:09.135914
+#5 transferring context: 4.25MB 0.6s done
+2025-Jun-28 19:27:09.135914
+#5 DONE 0.6s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#6 [base 2/2] RUN apk add --no-cache curl
+2025-Jun-28 19:27:09.135914
+#6 0.540 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:27:09.135914
+#6 0.843 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:27:09.135914
+#6 2.728 (1/9) Installing brotli-libs (1.1.0-r2)
+2025-Jun-28 19:27:09.135914
+#6 2.793 (2/9) Installing c-ares (1.34.5-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.810 (3/9) Installing libunistring (1.3-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.866 (4/9) Installing libidn2 (2.3.7-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.877 (5/9) Installing nghttp2-libs (1.65.0-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.886 (6/9) Installing libpsl (0.21.5-r3)
+2025-Jun-28 19:27:09.135914
+#6 2.891 (7/9) Installing zstd-libs (1.5.7-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.930 (8/9) Installing libcurl (8.14.1-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.957 (9/9) Installing curl (8.14.1-r0)
+2025-Jun-28 19:27:09.135914
+#6 2.977 Executing busybox-1.37.0-r18.trigger
+2025-Jun-28 19:27:09.135914
+#6 3.035 OK: 15 MiB in 27 packages
+2025-Jun-28 19:27:09.135914
+#6 DONE 3.7s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#7 [deps 1/3] WORKDIR /app
+2025-Jun-28 19:27:09.135914
+#7 DONE 0.1s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#8 [deps 2/3] COPY package*.json ./
+2025-Jun-28 19:27:09.135914
+#8 DONE 0.1s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#9 [runner 2/7] RUN apk add --no-cache curl
+2025-Jun-28 19:27:09.135914
+#9 0.534 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:27:09.135914
+#9 0.953 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+2025-Jun-28 19:27:09.135914
+#9 5.412 OK: 15 MiB in 27 packages
+2025-Jun-28 19:27:09.135914
+#9 DONE 6.7s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#10 [builder 3/5] RUN npm ci --timeout=600000
+2025-Jun-28 19:27:09.135914
+#10 ...
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#11 [runner 3/7] RUN addgroup --system --gid 1001 nodejs &&     adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jun-28 19:27:09.135914
+#11 DONE 1.0s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#12 [deps 3/3] RUN npm ci --omit=dev --timeout=600000 && npm cache clean --force
+2025-Jun-28 19:27:09.135914
+#12 ...
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#10 [builder 3/5] RUN npm ci --timeout=600000
+2025-Jun-28 19:27:09.135914
+#10 79.93 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+2025-Jun-28 19:27:09.135914
+#10 80.32 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+2025-Jun-28 19:27:09.135914
+#10 ...
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#12 [deps 3/3] RUN npm ci --omit=dev --timeout=600000 && npm cache clean --force
+2025-Jun-28 19:27:09.135914
+#12 131.1
+2025-Jun-28 19:27:09.135914
+#12 131.1 added 394 packages, and audited 395 packages in 2m
+2025-Jun-28 19:27:09.135914
+#12 131.1
+2025-Jun-28 19:27:09.135914
+#12 131.1 53 packages are looking for funding
+2025-Jun-28 19:27:09.135914
+#12 131.1   run `npm fund` for details
+2025-Jun-28 19:27:09.135914
+#12 131.1
+2025-Jun-28 19:27:09.135914
+#12 131.1 1 low severity vulnerability
+2025-Jun-28 19:27:09.135914
+#12 131.1
+2025-Jun-28 19:27:09.135914
+#12 131.1 To address all issues, run:
+2025-Jun-28 19:27:09.135914
+#12 131.1   npm audit fix
+2025-Jun-28 19:27:09.135914
+#12 131.1
+2025-Jun-28 19:27:09.135914
+#12 131.1 Run `npm audit` for details.
+2025-Jun-28 19:27:09.135914
+#12 131.2 npm notice
+2025-Jun-28 19:27:09.135914
+#12 131.2 npm notice New major version of npm available! 10.8.2 -> 11.4.2
+2025-Jun-28 19:27:09.135914
+#12 131.2 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+2025-Jun-28 19:27:09.135914
+#12 131.2 npm notice To update run: npm install -g npm@11.4.2
+2025-Jun-28 19:27:09.135914
+#12 131.2 npm notice
+2025-Jun-28 19:27:09.135914
+#12 132.8 npm warn using --force Recommended protections disabled.
+2025-Jun-28 19:27:09.135914
+#12 DONE 139.9s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#10 [builder 3/5] RUN npm ci --timeout=600000
+2025-Jun-28 19:27:09.135914
+#10 165.7
+2025-Jun-28 19:27:09.135914
+#10 165.7 added 500 packages, and audited 501 packages in 3m
+2025-Jun-28 19:27:09.135914
+#10 165.7
+2025-Jun-28 19:27:09.135914
+#10 165.7 65 packages are looking for funding
+2025-Jun-28 19:27:09.135914
+#10 165.7   run `npm fund` for details
+2025-Jun-28 19:27:09.135914
+#10 166.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 8 vulnerabilities (1 low, 7 moderate)
+2025-Jun-28 19:27:09.135914
+#10 166.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 To address issues that do not require attention, run:
+2025-Jun-28 19:27:09.135914
+#10 166.2   npm audit fix
+2025-Jun-28 19:27:09.135914
+#10 166.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 To address all issues (including breaking changes), run:
+2025-Jun-28 19:27:09.135914
+#10 166.2   npm audit fix --force
+2025-Jun-28 19:27:09.135914
+#10 166.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 Run `npm audit` for details.
+2025-Jun-28 19:27:09.135914
+#10 166.2 npm notice
+2025-Jun-28 19:27:09.135914
+#10 166.2 npm notice New major version of npm available! 10.8.2 -> 11.4.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 npm notice To update run: npm install -g npm@11.4.2
+2025-Jun-28 19:27:09.135914
+#10 166.2 npm notice
+2025-Jun-28 19:27:09.135914
+#10 DONE 167.2s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#13 [builder 4/5] COPY . .
+2025-Jun-28 19:27:09.135914
+#13 DONE 0.6s
+2025-Jun-28 19:27:09.135914
+2025-Jun-28 19:27:09.135914
+#14 [builder 5/5] RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+2025-Jun-28 19:27:09.135914
+#14 0.433 Build failed, checking for partial build...
+2025-Jun-28 19:27:09.135914
+#14 0.433 sh: vite: not found
+2025-Jun-28 19:27:09.135914
+#14 0.433 ls: dist/: No such file or directory
+2025-Jun-28 19:27:09.135914
+#14 ERROR: process "/bin/sh -c timeout 1200 sh -c \"vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist\" || (echo \"Build failed, checking for partial build...\" && ls -la dist/ && exit 1)" did not complete successfully: exit code: 1
+2025-Jun-28 19:27:09.135914
+------
+2025-Jun-28 19:27:09.135914
+> [builder 5/5] RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1):
+2025-Jun-28 19:27:09.135914
+0.433 Build failed, checking for partial build...
+2025-Jun-28 19:27:09.135914
+0.433 sh: vite: not found
+2025-Jun-28 19:27:09.135914
+0.433 ls: dist/: No such file or directory
+2025-Jun-28 19:27:09.135914
+------
+2025-Jun-28 19:27:09.135914
+Dockerfile:35
+2025-Jun-28 19:27:09.135914
+--------------------
+2025-Jun-28 19:27:09.135914
+33 |
+2025-Jun-28 19:27:09.135914
+34 |     # Build with timeout and better error handling - use production server
+2025-Jun-28 19:27:09.135914
+35 | >>> RUN timeout 1200 sh -c "vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist" || (echo "Build failed, checking for partial build..." && ls -la dist/ && exit 1)
+2025-Jun-28 19:27:09.135914
+36 |
+2025-Jun-28 19:27:09.135914
+37 |     # Production image
+2025-Jun-28 19:27:09.135914
+--------------------
+2025-Jun-28 19:27:09.135914
+ERROR: failed to solve: process "/bin/sh -c timeout 1200 sh -c \"vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist\" || (echo \"Build failed, checking for partial build...\" && ls -la dist/ && exit 1)" did not complete successfully: exit code: 1
+2025-Jun-28 19:27:09.135914
+exit status 1
+2025-Jun-28 19:27:09.150757
+Deployment failed. Removing the new version of your application.
+2025-Jun-28 19:27:11.098240
+Gracefully shutting down build container: x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:27:12.014558
+[CMD]: docker stop --time=30 x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:27:12.014558
+x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:27:12.660053
+[CMD]: docker rm -f x8g044o0g0kwcg840gksk84k
+2025-Jun-28 19:27:12.660053
+Error response from daemon: No such container: x8g044o0g0kwcg840gksk84k
