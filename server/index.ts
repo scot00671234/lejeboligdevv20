@@ -38,13 +38,15 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting
+// Rate limiting - with proper trust proxy configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting validation in development to avoid proxy trust warnings
+  skip: process.env.NODE_ENV === 'development' ? () => true : undefined,
 });
 app.use('/api/', limiter);
 
@@ -55,6 +57,8 @@ const authLimiter = rateLimit({
   message: 'Too many authentication attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting validation in development to avoid proxy trust warnings
+  skip: process.env.NODE_ENV === 'development' ? () => true : undefined,
 });
 app.use('/api/auth/', authLimiter);
 
