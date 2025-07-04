@@ -75,6 +75,40 @@ app.get('/ready', (_req: Request, res: Response) => {
   });
 });
 
+// Debug endpoint to check static files
+app.get('/debug/static', (_req: Request, res: Response) => {
+  const staticPath = findStaticFilesPath();
+  const indexPath = path.join(staticPath, 'index.html');
+  
+  try {
+    const files = fs.readdirSync(staticPath).map(file => {
+      const filePath = path.join(staticPath, file);
+      const stats = fs.statSync(filePath);
+      return {
+        name: file,
+        size: stats.size,
+        isDirectory: stats.isDirectory()
+      };
+    });
+    
+    res.json({
+      staticPath,
+      indexPath,
+      indexExists: fs.existsSync(indexPath),
+      files,
+      cwd: process.cwd(),
+      dirname: __dirname
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: 'Failed to read static directory',
+      staticPath,
+      indexPath,
+      message: err instanceof Error ? err.message : 'Unknown error'
+    });
+  }
+});
+
 // Static file path finder
 function findStaticFilesPath(): string {
   const possiblePaths = [
@@ -111,6 +145,25 @@ async function startServer() {
   } else {
     console.warn(`Static files path not found: ${staticPath}`);
   }
+
+  // Explicit root route with debugging
+  app.get('/', (req: Request, res: Response) => {
+    const indexPath = path.join(staticPath, 'index.html');
+    console.log(`ROOT REQUEST: Looking for index.html at ${indexPath}`);
+    console.log(`File exists: ${fs.existsSync(indexPath)}`);
+    
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.error(`Static files not found at ${staticPath}`);
+      res.status(404).json({ 
+        error: 'Static files not found',
+        path: staticPath,
+        indexPath: indexPath,
+        exists: fs.existsSync(indexPath)
+      });
+    }
+  });
 
   // SPA fallback - serve index.html for all other routes
   app.get('*', (req: Request, res: Response) => {

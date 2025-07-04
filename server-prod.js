@@ -639,6 +639,36 @@ app.get("/ready", (_req, res) => {
     timestamp: (/* @__PURE__ */ new Date()).toISOString()
   });
 });
+app.get("/debug/static", (_req, res) => {
+  const staticPath = findStaticFilesPath();
+  const indexPath = path.join(staticPath, "index.html");
+  try {
+    const files = fs.readdirSync(staticPath).map((file) => {
+      const filePath = path.join(staticPath, file);
+      const stats = fs.statSync(filePath);
+      return {
+        name: file,
+        size: stats.size,
+        isDirectory: stats.isDirectory()
+      };
+    });
+    res.json({
+      staticPath,
+      indexPath,
+      indexExists: fs.existsSync(indexPath),
+      files,
+      cwd: process.cwd(),
+      dirname: __dirname
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: "Failed to read static directory",
+      staticPath,
+      indexPath,
+      message: err instanceof Error ? err.message : "Unknown error"
+    });
+  }
+});
 function findStaticFilesPath() {
   const possiblePaths = [
     path.join(__dirname, "public"),
@@ -666,6 +696,22 @@ async function startServer() {
   } else {
     console.warn(`Static files path not found: ${staticPath}`);
   }
+  app.get("/", (req, res) => {
+    const indexPath = path.join(staticPath, "index.html");
+    console.log(`ROOT REQUEST: Looking for index.html at ${indexPath}`);
+    console.log(`File exists: ${fs.existsSync(indexPath)}`);
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.error(`Static files not found at ${staticPath}`);
+      res.status(404).json({
+        error: "Static files not found",
+        path: staticPath,
+        indexPath,
+        exists: fs.existsSync(indexPath)
+      });
+    }
+  });
   app.get("*", (req, res) => {
     const indexPath = path.join(staticPath, "index.html");
     if (fs.existsSync(indexPath)) {
