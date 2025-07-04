@@ -1,9 +1,0 @@
-traefik.enable=true
-traefik.http.routers.lejeboligfind.rule=Host(`lejeboligfind.dk`) || Host(`www.lejeboligfind.dk`)
-traefik.http.routers.lejeboligfind.entrypoints=websecure
-traefik.http.routers.lejeboligfind.tls=true
-traefik.http.routers.lejeboligfind.tls.certresolver=letsencrypt
-traefik.http.services.lejeboligfind.loadbalancer.server.port=5000
-traefik.http.routers.lejeboligfind.middlewares=redirect-to-https
-traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
-traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true

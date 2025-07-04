@@ -1,50 +1,50 @@
-# Production Node.js build with reliable frontend compilation
-FROM node:20-alpine
+# Production Node.js build
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # Install system dependencies
-RUN apk add --no-cache curl
+RUN apk add --no-cache python3 make g++
 
-# Copy package files first for better Docker layer caching
+# Copy package files first for better caching
 COPY package*.json ./
 
-# Install ALL dependencies (dev + prod needed for build)
-RUN npm ci --timeout=600000
+# Install dependencies
+RUN npm ci
 
-# Copy source code
+# Copy the rest of the application
 COPY . .
 
-# Build frontend using our reliable build script (bypasses Vite/Lucide issues)
-RUN node build-frontend.js
+# Build the application
+RUN npm run build
 
-# Verify frontend build completed successfully
-RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
-RUN test -f /app/dist/public/assets/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
-RUN test -f /app/dist/public/assets/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
+# Production image
+FROM node:20-alpine
 
-# Build backend server
-RUN npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js
+WORKDIR /app
 
-# Remove dev dependencies to reduce image size
-RUN npm ci --omit=dev --timeout=600000
+# Copy package files
+COPY package*.json ./
 
-# Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 --ingroup nodejs nodejs
+# Install only production dependencies
+RUN npm ci --only=production
 
-# Set proper ownership
+# Copy built files from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server ./server
+COPY --from=builder /app/server-prod.js ./
+
+# Create non-root user
+RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
 RUN chown -R nodejs:nodejs /app
-
-# Switch to non-root user
 USER nodejs
 
+# Expose port
 EXPOSE 5000
 
-# Health check for container orchestration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Set production environment and start server
-ENV NODE_ENV=production
+# Start the server
 CMD ["node", "server-prod.js"]
