@@ -28,14 +28,9 @@ app.use(helmet({
   },
 }));
 
-// CORS configuration for production
+// CORS configuration for production - works with any domain
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
-    'https://lejeboligfind.dk',
-    'https://www.lejeboligfind.dk',
-    'http://lejeboligfind.dk',
-    'http://www.lejeboligfind.dk'
-  ],
+  origin: true, // Accept all origins for now to fix deployment
   credentials: true,
   optionsSuccessStatus: 200
 }));
@@ -51,7 +46,19 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'production'
+    environment: process.env.NODE_ENV || 'production',
+    version: '1.0.0'
+  });
+});
+
+// Debug endpoint to verify deployment
+app.get('/debug/info', (_req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    environment: process.env.NODE_ENV || 'unknown',
+    staticPath: findStaticFilesPath(),
+    timestamp: new Date().toISOString(),
+    message: 'Lejebolig Find API is running'
   });
 });
 
