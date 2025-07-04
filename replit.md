@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a Danish rental property platform ("Lejebolig Nu") built as a full-stack web application. The system connects tenants with landlords, allowing property listings, search functionality, messaging, and favorites management. The application uses a modern tech stack with React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
+This is a Danish rental property platform ("Lejebolig Find") built as a full-stack web application. The system connects tenants with landlords, allowing property listings, search functionality, messaging, and favorites management. The application uses a modern tech stack with React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
 
 ## System Architecture
 
@@ -161,6 +161,15 @@ Changelog:
     * Created complete production build system bypassing Vite timeout issues
     * Verified all build artifacts generated correctly with proper HTML references
     * Platform ready for deployment to lejebolignu.dk with correct domain configuration
+- July 4, 2025. Updated branding and domain configuration for lejeboligfind.dk:
+    * Changed brand name from "Lejebolig Nu" to "Lejebolig Find" across all UI components
+    * Updated domain references from lejebolignu.dk to lejeboligfind.dk
+    * Modified all navbar components to display new brand name
+    * Updated HTML meta tags, Open Graph, and Twitter Card metadata
+    * Changed footer copyright and branding references
+    * Updated CORS configuration for new domain in both development and production servers
+    * Rebuilt production assets with new branding: 575KB JS, 2.7KB CSS
+    * Platform fully rebranded and ready for deployment to lejeboligfind.dk
 
 ## User Preferences
 

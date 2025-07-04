@@ -31,7 +31,7 @@ app.use(helmet({
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.ALLOWED_ORIGINS?.split(',') || ['https://lejebolignu.dk']
+    ? process.env.ALLOWED_ORIGINS?.split(',') || ['https://lejeboligfind.dk']
     : ['http://localhost:5000', 'http://127.0.0.1:5000'],
   credentials: true,
   optionsSuccessStatus: 200

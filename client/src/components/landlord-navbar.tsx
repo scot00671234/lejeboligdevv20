@@ -27,7 +27,7 @@ export default function LandlordNavbar() {
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <Home className="text-white h-4 w-4" />
               </div>
-              <span className="text-lg font-semibold text-gray-900 tracking-tight">Lejebolig Nu</span>
+              <span className="text-lg font-semibold text-gray-900 tracking-tight">Lejebolig Find</span>
             </Link>
           </div>
           

@@ -104,7 +104,7 @@ export default function Home() {
                 <div className="w-8 h-8 bg-danish-blue rounded flex items-center justify-center">
                   <span className="text-white font-bold">L</span>
                 </div>
-                <span className="text-xl font-bold">Lejebolig Nu</span>
+                <span className="text-xl font-bold">Lejebolig Find</span>
               </div>
               <p className="text-gray-400 mb-4">Danmarks moderne platform for lejeboliger. Find din næste bolig nemt og sikkert.</p>
             </div>
@@ -122,7 +122,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Lejebolig Nu. Alle rettigheder forbeholdes.</p>
+            <p>&copy; 2025 Lejebolig Find. Alle rettigheder forbeholdes.</p>
           </div>
         </div>
       </footer>
