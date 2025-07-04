@@ -49,23 +49,38 @@ export const getQueryFn: <T>(options: {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const apiUrl = API_CONFIG.getApiUrl(queryKey[0] as string);
+    const queryPath = queryKey[0] as string;
     
-    if (!apiUrl) {
-      throw new Error(`Invalid API URL for queryKey: ${queryKey[0]}`);
+    // Validate the query path
+    if (!queryPath || typeof queryPath !== 'string' || !queryPath.startsWith('/api/')) {
+      console.error('Invalid query path:', queryPath);
+      throw new Error(`Invalid query path: ${queryPath}`);
     }
     
-    const res = await fetch(apiUrl, {
-      headers,
-      credentials: "include",
-    });
-
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+    const apiUrl = API_CONFIG.getApiUrl(queryPath);
+    
+    if (!apiUrl || apiUrl === '') {
+      throw new Error(`Failed to construct API URL for path: ${queryPath}`);
     }
+    
+    try {
+      const res = await fetch(apiUrl, {
+        headers,
+        credentials: "include",
+      });
 
-    await throwIfResNotOk(res);
-    return await res.json();
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error for URL:', apiUrl, error);
+      throw error;
+    }
   };
 
 export const queryClient = new QueryClient({

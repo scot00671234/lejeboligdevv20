@@ -170,6 +170,13 @@ Changelog:
     * Updated CORS configuration for new domain in both development and production servers
     * Rebuilt production assets with new branding: 575KB JS, 2.7KB CSS
     * Platform fully rebranded and ready for deployment to lejeboligfind.dk
+- July 4, 2025. Fixed API configuration and frontend-backend communication:
+    * Resolved fetch errors by switching from localhost URLs to relative URLs for API calls
+    * Updated API_CONFIG to use relative URLs for both development and production environments
+    * Enhanced error handling in queryClient.ts with better debugging and validation
+    * Fixed frontend-backend communication issues causing unhandled promise rejections
+    * Verified production build still works correctly with same artifact sizes (575KB JS, 2.7KB CSS)
+    * Platform now fully functional with working API calls and proper error handling
 
 ## User Preferences
 

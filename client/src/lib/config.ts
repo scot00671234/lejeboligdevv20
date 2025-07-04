@@ -1,8 +1,8 @@
 // API Configuration for development and production environments
 export const API_CONFIG = {
-  // Use relative URLs for production (same domain as frontend)
-  // Use localhost for development
-  baseURL: import.meta.env.DEV ? 'http://localhost:5000' : '',
+  // Use relative URLs for both development and production 
+  // Vite dev server will proxy API requests to the backend
+  baseURL: '',
   
   // Build full API URL
   getApiUrl: (path: string) => {
