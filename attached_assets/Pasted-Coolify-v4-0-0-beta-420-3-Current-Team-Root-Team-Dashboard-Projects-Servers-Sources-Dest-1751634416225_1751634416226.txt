@@ -1,0 +1,511 @@
+Coolify
+v4.0.0-beta.420.3
+
+Current Team
+
+Root Team
+Dashboard
+Projects
+Servers
+Sources
+Destinations
+S3 Storages
+Shared Variables
+Notifications
+Keys & Tokens
+Tags
+Terminal
+Profile
+Teams
+Settings
+Sponsor us
+Feedback
+Logout
+Deployment
+My first project
+production
+lejebolig dev (have to set up env variables)
+Running
+
+Configuration
+Deployments
+Logs
+Terminal
+
+Links
+
+Advanced
+Redeploy
+Restart
+Stop
+Deployment Log
+Hide Debug Logs
+Deployment is Failed.
+
+
+2025-Jul-04 13:01:52.105778
+Starting deployment of scot00671234/lejeboligdevv20:main to localhost.
+2025-Jul-04 13:01:52.417111
+Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.8.
+2025-Jul-04 13:01:52.505744
+[CMD]: docker stop --time=30 tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:01:52.505744
+Error response from daemon: No such container: tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:01:52.597986
+[CMD]: docker rm -f tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:01:52.597986
+Error response from daemon: No such container: tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:01:52.722386
+[CMD]: docker run -d --network coolify --name tkg480gk0w0gw8gwowcs0gow --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/coollabsio/coolify-helper:1.0.8
+2025-Jul-04 13:01:52.722386
+52ced45151bf24f25a90430e4e277b5d13b652cb244dc05ff926e065fc1cb3f8
+2025-Jul-04 13:01:54.584514
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'GIT_SSH_COMMAND="ssh -o ConnectTimeout=30 -p 22 -o Port=22 -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote https://x-access-token:<REDACTED>@github.com/scot00671234/lejeboligdevv20.git main'
+2025-Jul-04 13:01:54.584514
+1328da98e8f4387ffff18cdc8860ba8fad07d3c0	refs/heads/main
+2025-Jul-04 13:01:54.847176
+----------------------------------------
+2025-Jul-04 13:01:54.850112
+Importing scot00671234/lejeboligdevv20:main (commit sha HEAD) to /artifacts/tkg480gk0w0gw8gwowcs0gow.
+2025-Jul-04 13:01:54.988550
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'git clone -b "main" https://x-access-token:<REDACTED>@github.com/scot00671234/lejeboligdevv20.git /artifacts/tkg480gk0w0gw8gwowcs0gow && cd /artifacts/tkg480gk0w0gw8gwowcs0gow && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git submodule update --init --recursive && cd /artifacts/tkg480gk0w0gw8gwowcs0gow && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git lfs pull'
+2025-Jul-04 13:01:54.988550
+Cloning into '/artifacts/tkg480gk0w0gw8gwowcs0gow'...
+2025-Jul-04 13:01:56.100035
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'cd /artifacts/tkg480gk0w0gw8gwowcs0gow && git log -1 1328da98e8f4387ffff18cdc8860ba8fad07d3c0 --pretty=%B'
+2025-Jul-04 13:01:56.100035
+Add an image to better illustrate the current Traefik setup
+2025-Jul-04 13:01:56.104204
+Adds image_1751630264897.png to visually represent the Traefik configuration.
+2025-Jul-04 13:01:56.104204
+2025-Jul-04 13:01:56.104204
+Replit-Commit-Author: Agent
+2025-Jul-04 13:01:56.104204
+Replit-Commit-Session-Id: 12db0a18-96ba-4d8a-8ad9-80657d14e8ba
+2025-Jul-04 13:01:56.104204
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/4f073f78-3fc8-4707-890d-7751d46d184e/94af05b7-07bd-41e7-9c9e-c6dbdc2ddac2.jpg
+2025-Jul-04 13:01:56.263328
+Image not found (t8wsww4occo048kc4w8gg80w:1328da98e8f4387ffff18cdc8860ba8fad07d3c0). Building new image.
+2025-Jul-04 13:01:57.228531
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'cat /artifacts/tkg480gk0w0gw8gwowcs0gow/Dockerfile'
+2025-Jul-04 13:01:57.228531
+# Production Node.js build with reliable frontend compilation
+2025-Jul-04 13:01:57.228531
+FROM node:20-alpine
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+WORKDIR /app
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Install system dependencies
+2025-Jul-04 13:01:57.228531
+RUN apk add --no-cache curl
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Copy package files first for better Docker layer caching
+2025-Jul-04 13:01:57.228531
+COPY package*.json ./
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Install ALL dependencies (dev + prod needed for build)
+2025-Jul-04 13:01:57.228531
+RUN npm ci --timeout=600000
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Copy source code
+2025-Jul-04 13:01:57.228531
+COPY . .
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Build frontend using our reliable build script (bypasses Vite/Lucide issues)
+2025-Jul-04 13:01:57.228531
+RUN node build-frontend.js
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Verify frontend build completed successfully
+2025-Jul-04 13:01:57.228531
+RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
+2025-Jul-04 13:01:57.228531
+RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+2025-Jul-04 13:01:57.228531
+RUN test -f /app/dist/public/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Build backend server
+2025-Jul-04 13:01:57.228531
+RUN npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Remove dev dependencies to reduce image size
+2025-Jul-04 13:01:57.228531
+RUN npm ci --omit=dev --timeout=600000
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Create non-root user for security
+2025-Jul-04 13:01:57.228531
+RUN addgroup --system --gid 1001 nodejs && \
+2025-Jul-04 13:01:57.228531
+adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Set proper ownership
+2025-Jul-04 13:01:57.228531
+RUN chown -R nodejs:nodejs /app
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Switch to non-root user
+2025-Jul-04 13:01:57.228531
+USER nodejs
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+EXPOSE 5000
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Health check for container orchestration
+2025-Jul-04 13:01:57.228531
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+2025-Jul-04 13:01:57.228531
+CMD curl -f http://localhost:5000/health || exit 1
+2025-Jul-04 13:01:57.228531
+2025-Jul-04 13:01:57.228531
+# Start production server
+2025-Jul-04 13:01:57.228531
+CMD ["node", "server-prod.js"]
+2025-Jul-04 13:01:57.638537
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'cat /artifacts/tkg480gk0w0gw8gwowcs0gow/Dockerfile'
+2025-Jul-04 13:01:57.638537
+# Production Node.js build with reliable frontend compilation
+2025-Jul-04 13:01:57.638537
+FROM node:20-alpine
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+WORKDIR /app
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Install system dependencies
+2025-Jul-04 13:01:57.638537
+RUN apk add --no-cache curl
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Copy package files first for better Docker layer caching
+2025-Jul-04 13:01:57.638537
+COPY package*.json ./
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Install ALL dependencies (dev + prod needed for build)
+2025-Jul-04 13:01:57.638537
+RUN npm ci --timeout=600000
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Copy source code
+2025-Jul-04 13:01:57.638537
+COPY . .
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Build frontend using our reliable build script (bypasses Vite/Lucide issues)
+2025-Jul-04 13:01:57.638537
+RUN node build-frontend.js
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Verify frontend build completed successfully
+2025-Jul-04 13:01:57.638537
+RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
+2025-Jul-04 13:01:57.638537
+RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+2025-Jul-04 13:01:57.638537
+RUN test -f /app/dist/public/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Build backend server
+2025-Jul-04 13:01:57.638537
+RUN npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Remove dev dependencies to reduce image size
+2025-Jul-04 13:01:57.638537
+RUN npm ci --omit=dev --timeout=600000
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Create non-root user for security
+2025-Jul-04 13:01:57.638537
+RUN addgroup --system --gid 1001 nodejs && \
+2025-Jul-04 13:01:57.638537
+adduser --system --uid 1001 --ingroup nodejs nodejs
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Set proper ownership
+2025-Jul-04 13:01:57.638537
+RUN chown -R nodejs:nodejs /app
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Switch to non-root user
+2025-Jul-04 13:01:57.638537
+USER nodejs
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+EXPOSE 5000
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Health check for container orchestration
+2025-Jul-04 13:01:57.638537
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+2025-Jul-04 13:01:57.638537
+CMD curl -f http://localhost:5000/health || exit 1
+2025-Jul-04 13:01:57.638537
+2025-Jul-04 13:01:57.638537
+# Start production server
+2025-Jul-04 13:01:57.638537
+CMD ["node", "server-prod.js"]
+2025-Jul-04 13:01:57.798677
+----------------------------------------
+2025-Jul-04 13:01:57.802316
+Building docker image started.
+2025-Jul-04 13:01:57.805015
+To check the current progress, click on Show Debug Logs.
+2025-Jul-04 13:01:58.087999
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'cat /artifacts/build.sh'
+2025-Jul-04 13:01:58.087999
+docker build  --add-host coolify:10.0.1.5 --add-host coolify-db:10.0.1.4 --add-host coolify-realtime:10.0.1.3 --add-host coolify-redis:10.0.1.2 --add-host jok4gkskoookocscc4w0kcgc:10.0.1.7 --network host -f /artifacts/tkg480gk0w0gw8gwowcs0gow/Dockerfile --build-arg SOURCE_COMMIT='1328da98e8f4387ffff18cdc8860ba8fad07d3c0' --build-arg 'COOLIFY_URL=hubcorner.xyz,www.hubcorner.xyz' --build-arg 'COOLIFY_FQDN=hubcorner.xyz,www.hubcorner.xyz' --build-arg 'COOLIFY_BRANCH=main' --build-arg 'COOLIFY_RESOURCE_UUID=t8wsww4occo048kc4w8gg80w' --build-arg 'COOLIFY_CONTAINER_NAME=t8wsww4occo048kc4w8gg80w-130151016584' --progress plain -t t8wsww4occo048kc4w8gg80w:1328da98e8f4387ffff18cdc8860ba8fad07d3c0 /artifacts/tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:01:58.581789
+[CMD]: docker exec tkg480gk0w0gw8gwowcs0gow bash -c 'bash /artifacts/build.sh'
+2025-Jul-04 13:01:58.581789
+#0 building with "default" instance using docker driver
+2025-Jul-04 13:01:58.581789
+2025-Jul-04 13:01:58.581789
+#1 [internal] load build definition from Dockerfile
+2025-Jul-04 13:01:58.581789
+#1 transferring dockerfile: 1.56kB done
+2025-Jul-04 13:01:58.581789
+#1 DONE 0.0s
+2025-Jul-04 13:01:58.581789
+2025-Jul-04 13:01:58.581789
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+2025-Jul-04 13:01:58.774012
+#2 DONE 0.3s
+2025-Jul-04 13:01:58.903069
+#3 [internal] load .dockerignore
+2025-Jul-04 13:01:58.903069
+#3 transferring context: 739B done
+2025-Jul-04 13:01:58.903069
+#3 DONE 0.0s
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#4 [ 1/14] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+2025-Jul-04 13:01:58.903069
+#4 DONE 0.0s
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#5 [internal] load build context
+2025-Jul-04 13:01:58.903069
+#5 transferring context: 1.31MB 0.0s done
+2025-Jul-04 13:01:58.903069
+#5 DONE 0.0s
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#6 [ 3/14] RUN apk add --no-cache curl
+2025-Jul-04 13:01:58.903069
+#6 CACHED
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#7 [ 4/14] COPY package*.json ./
+2025-Jul-04 13:01:58.903069
+#7 CACHED
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#8 [ 2/14] WORKDIR /app
+2025-Jul-04 13:01:58.903069
+#8 CACHED
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#9 [ 5/14] RUN npm ci --timeout=600000
+2025-Jul-04 13:01:58.903069
+#9 CACHED
+2025-Jul-04 13:01:58.903069
+2025-Jul-04 13:01:58.903069
+#10 [ 6/14] COPY . .
+2025-Jul-04 13:01:59.070923
+#10 DONE 0.1s
+2025-Jul-04 13:01:59.070923
+2025-Jul-04 13:01:59.070923
+#11 [ 7/14] RUN node build-frontend.js
+2025-Jul-04 13:01:59.070923
+#11 0.144 Building frontend with esbuild...
+2025-Jul-04 13:02:02.163044
+#11 3.235 Frontend build completed successfully!
+2025-Jul-04 13:02:02.163044
+#11 3.235 Files generated:
+2025-Jul-04 13:02:02.163044
+#11 3.235 - dist/public/index.html
+2025-Jul-04 13:02:02.163044
+#11 3.235 - dist/public/assets/index.js
+2025-Jul-04 13:02:02.163044
+#11 3.235 - dist/public/assets/index.css
+2025-Jul-04 13:02:02.309600
+#11 DONE 3.4s
+2025-Jul-04 13:02:02.465817
+#12 [ 8/14] RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
+2025-Jul-04 13:02:02.477016
+#12 DONE 0.2s
+2025-Jul-04 13:02:02.600179
+#13 [ 9/14] RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+2025-Jul-04 13:02:02.600179
+#13 0.128 Frontend build failed: index.css not found
+2025-Jul-04 13:02:02.642037
+#13 ERROR: process "/bin/sh -c test -f /app/dist/public/index.css || (echo \"Frontend build failed: index.css not found\" && exit 1)" did not complete successfully: exit code: 1
+2025-Jul-04 13:02:02.642037
+------
+2025-Jul-04 13:02:02.642037
+> [ 9/14] RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1):
+2025-Jul-04 13:02:02.642037
+0.128 Frontend build failed: index.css not found
+2025-Jul-04 13:02:02.642037
+------
+2025-Jul-04 13:02:02.662598
+Dockerfile:23
+2025-Jul-04 13:02:02.662598
+--------------------
+2025-Jul-04 13:02:02.662598
+21 |     # Verify frontend build completed successfully
+2025-Jul-04 13:02:02.662598
+22 |     RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
+2025-Jul-04 13:02:02.662598
+23 | >>> RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+2025-Jul-04 13:02:02.662598
+24 |     RUN test -f /app/dist/public/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
+2025-Jul-04 13:02:02.662598
+25 |
+2025-Jul-04 13:02:02.662598
+--------------------
+2025-Jul-04 13:02:02.662598
+ERROR: failed to solve: process "/bin/sh -c test -f /app/dist/public/index.css || (echo \"Frontend build failed: index.css not found\" && exit 1)" did not complete successfully: exit code: 1
+2025-Jul-04 13:02:02.662598
+exit status 1
+2025-Jul-04 13:02:02.762781
+Oops something is not okay, are you okay? 😢
+2025-Jul-04 13:02:02.771216
+#0 building with "default" instance using docker driver
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#1 [internal] load build definition from Dockerfile
+2025-Jul-04 13:02:02.771216
+#1 transferring dockerfile: 1.56kB done
+2025-Jul-04 13:02:02.771216
+#1 DONE 0.0s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+2025-Jul-04 13:02:02.771216
+#2 DONE 0.3s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#3 [internal] load .dockerignore
+2025-Jul-04 13:02:02.771216
+#3 transferring context: 739B done
+2025-Jul-04 13:02:02.771216
+#3 DONE 0.0s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#4 [ 1/14] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+2025-Jul-04 13:02:02.771216
+#4 DONE 0.0s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#5 [internal] load build context
+2025-Jul-04 13:02:02.771216
+#5 transferring context: 1.31MB 0.0s done
+2025-Jul-04 13:02:02.771216
+#5 DONE 0.0s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#6 [ 3/14] RUN apk add --no-cache curl
+2025-Jul-04 13:02:02.771216
+#6 CACHED
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#7 [ 4/14] COPY package*.json ./
+2025-Jul-04 13:02:02.771216
+#7 CACHED
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#8 [ 2/14] WORKDIR /app
+2025-Jul-04 13:02:02.771216
+#8 CACHED
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#9 [ 5/14] RUN npm ci --timeout=600000
+2025-Jul-04 13:02:02.771216
+#9 CACHED
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#10 [ 6/14] COPY . .
+2025-Jul-04 13:02:02.771216
+#10 DONE 0.1s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#11 [ 7/14] RUN node build-frontend.js
+2025-Jul-04 13:02:02.771216
+#11 0.144 Building frontend with esbuild...
+2025-Jul-04 13:02:02.771216
+#11 3.235 Frontend build completed successfully!
+2025-Jul-04 13:02:02.771216
+#11 3.235 Files generated:
+2025-Jul-04 13:02:02.771216
+#11 3.235 - dist/public/index.html
+2025-Jul-04 13:02:02.771216
+#11 3.235 - dist/public/assets/index.js
+2025-Jul-04 13:02:02.771216
+#11 3.235 - dist/public/assets/index.css
+2025-Jul-04 13:02:02.771216
+#11 DONE 3.4s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#12 [ 8/14] RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
+2025-Jul-04 13:02:02.771216
+#12 DONE 0.2s
+2025-Jul-04 13:02:02.771216
+2025-Jul-04 13:02:02.771216
+#13 [ 9/14] RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+2025-Jul-04 13:02:02.771216
+#13 0.128 Frontend build failed: index.css not found
+2025-Jul-04 13:02:02.771216
+#13 ERROR: process "/bin/sh -c test -f /app/dist/public/index.css || (echo \"Frontend build failed: index.css not found\" && exit 1)" did not complete successfully: exit code: 1
+2025-Jul-04 13:02:02.771216
+------
+2025-Jul-04 13:02:02.771216
+> [ 9/14] RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1):
+2025-Jul-04 13:02:02.771216
+0.128 Frontend build failed: index.css not found
+2025-Jul-04 13:02:02.771216
+------
+2025-Jul-04 13:02:02.771216
+Dockerfile:23
+2025-Jul-04 13:02:02.771216
+--------------------
+2025-Jul-04 13:02:02.771216
+21 |     # Verify frontend build completed successfully
+2025-Jul-04 13:02:02.771216
+22 |     RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
+2025-Jul-04 13:02:02.771216
+23 | >>> RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+2025-Jul-04 13:02:02.771216
+24 |     RUN test -f /app/dist/public/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
+2025-Jul-04 13:02:02.771216
+25 |
+2025-Jul-04 13:02:02.771216
+--------------------
+2025-Jul-04 13:02:02.771216
+ERROR: failed to solve: process "/bin/sh -c test -f /app/dist/public/index.css || (echo \"Frontend build failed: index.css not found\" && exit 1)" did not complete successfully: exit code: 1
+2025-Jul-04 13:02:02.771216
+exit status 1
+2025-Jul-04 13:02:02.778123
+Deployment failed. Removing the new version of your application.
+2025-Jul-04 13:02:03.742327
+Gracefully shutting down build container: tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:02:03.942303
+[CMD]: docker stop --time=30 tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:02:03.942303
+tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:02:04.079305
+[CMD]: docker rm -f tkg480gk0w0gw8gwowcs0gow
+2025-Jul-04 13:02:04.079305
+Error response from daemon: No such container: tkg480gk0w0gw8gwowcs0gow
