@@ -1,61 +1,123 @@
 import { build } from 'esbuild';
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import fs from 'fs';
+import path from 'path';
 
-// Simple production build script that avoids Vite's Lucide React bundling issues
+// Complete production build script
 async function buildProduction() {
-  console.log('Building production assets...');
-  
   try {
-    // Build the React app with esbuild (faster than Vite for this case)
+    console.log('Starting production build...');
+    
+    // Clean and create dist directory
+    if (fs.existsSync('dist')) {
+      fs.rmSync('dist', { recursive: true });
+    }
+    fs.mkdirSync('dist', { recursive: true });
+    fs.mkdirSync('dist/public', { recursive: true });
+    fs.mkdirSync('dist/public/assets', { recursive: true });
+
+    // Build the frontend
+    console.log('Building frontend...');
     await build({
       entryPoints: ['client/src/main.tsx'],
       bundle: true,
       minify: true,
-      format: 'esm',
-      target: ['es2020'],
+      sourcemap: false,
       outfile: 'dist/public/assets/index.js',
+      format: 'esm',
+      target: 'es2020',
       define: {
         'process.env.NODE_ENV': '"production"',
         'import.meta.env.DEV': 'false',
         'import.meta.env.PROD': 'true',
       },
-      jsx: 'automatic',
-      jsxDev: false,
       loader: {
         '.tsx': 'tsx',
         '.ts': 'ts',
       },
-      alias: {
-        '@': './client/src',
-        '@shared': './shared',
-      },
-      external: [],
-      splitting: false,
-      metafile: true,
+      external: [], // Bundle everything
+      splitting: false, // Avoid splitting to reduce complexity
+      write: true,
+      platform: 'browser',
     });
+
+    // Build CSS separately
+    console.log('Building CSS...');
+    await build({
+      entryPoints: ['client/src/index.css'],
+      bundle: true,
+      minify: true,
+      outfile: 'dist/public/assets/index.css',
+      loader: {
+        '.css': 'css',
+      },
+    });
+
+    // Copy HTML template
+    console.log('Generating HTML...');
+    const htmlTemplate = `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lejebolig Nu - Find Your Perfect Rental in Denmark</title>
+    <meta name="description" content="Discover rental properties across Denmark. Connect with landlords and find your ideal home with Lejebolig Nu - Denmark's premier rental platform." />
+    <meta name="keywords" content="lejebolig, rental, Denmark, apartments, houses, landlord, tenant" />
+    <meta name="author" content="Lejebolig Nu" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     
-    console.log('✓ JavaScript bundle created');
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lejebolig Nu - Find Your Perfect Rental in Denmark" />
+    <meta property="og:description" content="Discover rental properties across Denmark. Connect with landlords and find your ideal home." />
+    <meta property="og:url" content="https://lejebolignu.dk" />
     
-    // Build the server
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lejebolig Nu - Find Your Perfect Rental in Denmark" />
+    <meta name="twitter:description" content="Discover rental properties across Denmark. Connect with landlords and find your ideal home." />
+    
+    <!-- Security -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;" />
+    
+    <link rel="stylesheet" href="./assets/index.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./assets/index.js"></script>
+  </body>
+</html>`;
+
+    fs.writeFileSync('dist/public/index.html', htmlTemplate);
+
+    // Build the backend
+    console.log('Building backend...');
     await build({
       entryPoints: ['server/index.ts'],
       bundle: true,
+      minify: false,
+      sourcemap: false,
+      outfile: 'dist/index.js',
+      format: 'esm',
+      target: 'node18',
       platform: 'node',
       packages: 'external',
-      format: 'esm',
-      outfile: 'dist/index.js',
-      target: ['node18'],
-      define: {
-        'process.env.NODE_ENV': '"production"',
-      },
     });
+
+    // Get file sizes
+    const jsSize = (fs.statSync('dist/public/assets/index.js').size / 1024).toFixed(1);
+    const cssSize = (fs.statSync('dist/public/assets/index.css').size / 1024).toFixed(1);
+    const serverSize = (fs.statSync('dist/index.js').size / 1024).toFixed(1);
     
-    console.log('✓ Server bundle created');
-    console.log('Production build completed successfully!');
+    console.log('\n✅ Production build completed successfully!');
+    console.log('\n📦 Build artifacts:');
+    console.log(`- Frontend JS: ${jsSize}KB`);
+    console.log(`- Frontend CSS: ${cssSize}KB`);
+    console.log(`- Backend: ${serverSize}KB`);
+    console.log(`- HTML: dist/public/index.html`);
+    console.log('\n🚀 Ready for production deployment!');
     
   } catch (error) {
-    console.error('Build failed:', error);
+    console.error('❌ Build failed:', error);
     process.exit(1);
   }
 }

@@ -1,71 +1,57 @@
-#!/usr/bin/env node
 import { build } from 'esbuild';
-import { writeFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs';
+import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Custom build script for production to avoid Vite timeout issues
+async function buildFrontend() {
+  try {
+    console.log('Building frontend with esbuild...');
+    
+    // Create dist directory
+    if (!fs.existsSync('dist')) {
+      fs.mkdirSync('dist', { recursive: true });
+    }
+    if (!fs.existsSync('dist/public')) {
+      fs.mkdirSync('dist/public', { recursive: true });
+    }
 
-// Ensure output directory exists
-const outDir = join(__dirname, 'dist/public');
-mkdirSync(outDir, { recursive: true });
+    // Build the frontend
+    await build({
+      entryPoints: ['client/src/main.tsx'],
+      bundle: true,
+      minify: true,
+      sourcemap: false,
+      outfile: 'dist/public/assets/index.js',
+      format: 'esm',
+      target: 'es2020',
+      define: {
+        'process.env.NODE_ENV': '"production"',
+        'import.meta.env.DEV': 'false',
+        'import.meta.env.PROD': 'true',
+      },
+      loader: {
+        '.tsx': 'tsx',
+        '.ts': 'ts',
+      },
+      external: [], // Bundle everything
+      splitting: false, // Avoid splitting to reduce complexity
+      write: true,
+      platform: 'browser',
+    });
 
-// Build CSS first
-console.log('Building CSS...');
-try {
-  const { execSync } = await import('child_process');
-  execSync('cd client && npx tailwindcss -i src/index.css -o ../dist/public/index.css --minify', { 
-    stdio: 'inherit',
-    timeout: 30000 
-  });
-  console.log('✓ CSS built successfully');
-} catch (error) {
-  console.error('CSS build failed:', error);
-  process.exit(1);
-}
+    // Build CSS separately
+    await build({
+      entryPoints: ['client/src/index.css'],
+      bundle: true,
+      minify: true,
+      outfile: 'dist/public/assets/index.css',
+      loader: {
+        '.css': 'css',
+      },
+    });
 
-// Build JavaScript with esbuild (bypasses Vite/Lucide issues)
-console.log('Building JavaScript...');
-try {
-  await build({
-    entryPoints: ['client/src/main.tsx'],
-    bundle: true,
-    minify: true,
-    format: 'esm',
-    target: ['es2020'],
-    outfile: join(outDir, 'index.js'),
-    define: {
-      'process.env.NODE_ENV': '"production"',
-      'import.meta.env.DEV': 'false',
-      'import.meta.env.PROD': 'true',
-      'import.meta.env.MODE': '"production"',
-    },
-    jsx: 'automatic',
-    jsxDev: false,
-    loader: {
-      '.tsx': 'tsx',
-      '.ts': 'ts',
-      '.css': 'css',
-    },
-    alias: {
-      '@': join(__dirname, 'client/src'),
-      '@shared': join(__dirname, 'shared'),
-    },
-    external: [],
-    splitting: false,
-    metafile: false,
-    logLevel: 'warning',
-  });
-  console.log('✓ JavaScript built successfully');
-} catch (error) {
-  console.error('JavaScript build failed:', error);
-  process.exit(1);
-}
-
-// Create production HTML
-console.log('Creating production HTML...');
-const htmlContent = `<!DOCTYPE html>
+    // Copy HTML template
+    const htmlTemplate = `<!DOCTYPE html>
 <html lang="da">
   <head>
     <meta charset="UTF-8" />
@@ -80,41 +66,36 @@ const htmlContent = `<!DOCTYPE html>
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Lejebolig Nu - Find Your Perfect Rental in Denmark" />
     <meta property="og:description" content="Discover rental properties across Denmark. Connect with landlords and find your ideal home." />
-    <meta property="og:image" content="/og-image.jpg" />
-    <meta property="og:url" content="https://lejebolig.nu" />
+    <meta property="og:url" content="https://lejebolignu.dk" />
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Lejebolig Nu - Find Your Perfect Rental in Denmark" />
     <meta name="twitter:description" content="Discover rental properties across Denmark. Connect with landlords and find your ideal home." />
-    <meta name="twitter:image" content="/og-image.jpg" />
     
     <!-- Security -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;" />
     
-    <!-- Production Assets -->
-    <link rel="stylesheet" href="/index.css" />
+    <link rel="stylesheet" href="./assets/index.css" />
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.js"></script>
+    <script type="module" src="./assets/index.js"></script>
   </body>
 </html>`;
 
-writeFileSync(join(outDir, 'index.html'), htmlContent);
-console.log('✓ Production HTML created');
-
-console.log(`Frontend build completed successfully!`);
-console.log(`Output directory: ${outDir}`);
-
-// Verify critical files exist
-const criticalFiles = ['index.html', 'index.css', 'index.js'];
-for (const file of criticalFiles) {
-  const filePath = join(outDir, file);
-  if (!existsSync(filePath)) {
-    console.error(`❌ Critical file missing: ${filePath}`);
+    fs.writeFileSync('dist/public/index.html', htmlTemplate);
+    
+    console.log('Frontend build completed successfully!');
+    console.log('Files generated:');
+    console.log('- dist/public/index.html');
+    console.log('- dist/public/assets/index.js');
+    console.log('- dist/public/assets/index.css');
+    
+  } catch (error) {
+    console.error('Build failed:', error);
     process.exit(1);
   }
 }
 
-console.log('✓ All critical files verified');
+buildFrontend();
