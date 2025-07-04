@@ -50,6 +50,11 @@ export const getQueryFn: <T>(options: {
     }
 
     const apiUrl = API_CONFIG.getApiUrl(queryKey[0] as string);
+    
+    if (!apiUrl) {
+      throw new Error(`Invalid API URL for queryKey: ${queryKey[0]}`);
+    }
+    
     const res = await fetch(apiUrl, {
       headers,
       credentials: "include",

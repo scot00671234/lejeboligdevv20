@@ -6,6 +6,11 @@ export const API_CONFIG = {
   
   // Build full API URL
   getApiUrl: (path: string) => {
+    if (!path || typeof path !== 'string') {
+      console.error('Invalid API path:', path);
+      return '';
+    }
+    
     const baseUrl = API_CONFIG.baseURL;
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${baseUrl}${cleanPath}`;

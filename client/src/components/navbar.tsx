@@ -5,6 +5,7 @@ import { Home } from 'lucide-react';
 import TenantNavbar from './tenant-navbar';
 import LandlordNavbar from './landlord-navbar';
 import type { User } from '@/lib/auth';
+import { API_CONFIG } from '@/lib/config';
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -17,7 +18,8 @@ export default function Navbar() {
       if (!token) return null;
       
       try {
-        const response = await fetch('/api/auth/me', {
+        const apiUrl = API_CONFIG.getApiUrl('/api/auth/me');
+        const response = await fetch(apiUrl, {
           headers: { Authorization: `Bearer ${token}` },
           credentials: 'include',
         });
