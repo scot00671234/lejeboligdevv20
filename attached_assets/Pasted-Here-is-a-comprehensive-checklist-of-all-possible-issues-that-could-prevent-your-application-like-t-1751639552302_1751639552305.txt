@@ -1,0 +1,101 @@
+Here is a comprehensive checklist of all possible issues that could prevent your application (like the one shown on lejeboligfind.dk) from running properly via Docker, Coolify, and Traefik:
+
+✅ Container-Level Issues
+Application not listening on correct port
+
+Logs show Production server running on port 5000, but Traefik might expect port 80 or 443.
+
+Fix: Expose port 5000 correctly in Docker and Traefik service labels.
+
+Docker health check not passed
+
+Even if the app is running, failing health check (like localhost:5000/health) can cause Traefik to skip routing.
+
+Container crashed or exited
+
+Check with docker ps -a to confirm status.
+
+Coolify log: Error response from daemon: No such container.
+
+Container memory limits / swap errors
+
+Message: Your kernel does not support memory swappiness. Harmless for most setups, but can cause issues on some cloud VPS.
+
+Wrong environment config
+
+Running production mode in a local-only network (i.e. localhost) can break external routing.
+
+✅ Coolify Configuration Issues
+Build completed but app not reachable
+
+Misconfigured Docker Compose file (wrong exposed ports, base path, volume paths).
+
+Coolify might not be mapping ports to host correctly.
+
+Wrong Docker image / tag
+
+Double-check if the right image is built and deployed.
+
+Secrets/Env Vars not injected
+
+Ensure DATABASE_URL, API_KEYS, etc., are passed properly.
+
+Missing volumes / mount points
+
+Check if public/ or dist/ folders are correctly mounted or copied.
+
+✅ Traefik Configuration Issues
+Wrong port forwarded in Traefik
+
+Traefik needs to know the internal port your app runs on: set traefik.http.services.<name>.loadbalancer.server.port=5000.
+
+HTTPS redirect misconfigured
+
+If HTTPS is forced (redirect-to-https) but no TLS router is defined, Traefik returns 503.
+
+No HTTPS router defined
+
+You only have HTTP routers (entryPoints=http). But you're accessing the domain via https://.
+
+Traefik service mislinked
+
+Your service value must exactly match the traefik.http.services.* definition. Check typos.
+
+Certificate / TLS misconfiguration
+
+No valid TLS cert = 503 errors for HTTPS. Check Traefik's certresolver or TLS options.
+
+✅ Domain / DNS / Networking Issues
+Domain not pointing to server IP
+
+Confirm DNS A record of www.lejeboligfind.dk points to your server’s public IP.
+
+Firewall blocks port 80 or 443
+
+Check ufw, iptables, or cloud provider’s firewall rules.
+
+Let's Encrypt rate limits or failures
+
+If HTTPS certs failed, Traefik will return 503 until retry.
+
+IPv6-only DNS
+
+If domain resolves to IPv6 but server isn’t set up for IPv6, routing fails.
+
+Reverse proxy (like Traefik) forwarding to wrong internal container name
+
+Docker internal DNS must resolve the service name (lejebolig-service) correctly.
+
+✅ Frontend/Browser Errors
+Browser tries to fetch favicon or JS before backend is ready
+
+Causes 503 on /favicon.ico — harmless but noisy.
+
+CORS issues
+
+If you use APIs on another subdomain or port, CORS could block requests.
+
+HTTPS enforced in browser, but app doesn't serve HTTPS
+
+Traefik must handle SSL termination correctly.
+
