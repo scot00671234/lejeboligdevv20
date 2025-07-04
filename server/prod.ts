@@ -2,7 +2,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -11,9 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-
-// Trust proxy for rate limiting and security
-app.set('trust proxy', true);
 
 // Security middleware for production
 app.use(helmet({
@@ -44,19 +40,7 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// Rate limiting with proper proxy configuration
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Only apply rate limiting in production, skip validation issues with proxy
-if (process.env.NODE_ENV === 'production') {
-  app.use(limiter);
-}
+// Note: Rate limiting disabled to prevent container proxy trust errors in Coolify deployment
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

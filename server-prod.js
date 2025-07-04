@@ -580,14 +580,12 @@ async function registerRoutes(app2) {
 // server/prod.ts
 import cors from "cors";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path.dirname(__filename);
 var app = express();
-app.set("trust proxy", true);
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -613,18 +611,6 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200
 }));
-var limiter = rateLimit({
-  windowMs: 15 * 60 * 1e3,
-  // 15 minutes
-  max: 100,
-  // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false
-});
-if (process.env.NODE_ENV === "production") {
-  app.use(limiter);
-}
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.get("/health", (_req, res) => {
