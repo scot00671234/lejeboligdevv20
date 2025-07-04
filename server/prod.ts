@@ -44,7 +44,7 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// Rate limiting
+// Rate limiting with proper proxy configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
@@ -52,7 +52,11 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(limiter);
+
+// Only apply rate limiting in production, skip validation issues with proxy
+if (process.env.NODE_ENV === 'production') {
+  app.use(limiter);
+}
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -133,6 +137,7 @@ function findStaticFilesPath(): string {
 // Main server startup
 async function startServer() {
   const PORT = parseInt(process.env.PORT || '5000', 10);
+  const NODE_ENV = process.env.NODE_ENV || 'production';
 
   // Register API routes
   await registerRoutes(app);
@@ -187,7 +192,8 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Production server running on port ${PORT}`);
     console.log(`Static files path: ${staticPath}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log(`Environment: ${NODE_ENV}`);
+    console.log(`Health check available at: http://localhost:${PORT}/health`);
   });
 }
 

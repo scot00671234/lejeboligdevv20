@@ -45,5 +45,6 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:5000/health || exit 1
 
-# Start production server
+# Set production environment and start server
+ENV NODE_ENV=production
 CMD ["node", "server-prod.js"]

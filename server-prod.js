@@ -622,7 +622,9 @@ var limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
-app.use(limiter);
+if (process.env.NODE_ENV === "production") {
+  app.use(limiter);
+}
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.get("/health", (_req, res) => {
@@ -688,6 +690,7 @@ function findStaticFilesPath() {
 }
 async function startServer() {
   const PORT = parseInt(process.env.PORT || "5000", 10);
+  const NODE_ENV = process.env.NODE_ENV || "production";
   await registerRoutes(app);
   const staticPath = findStaticFilesPath();
   if (fs.existsSync(staticPath)) {
@@ -729,7 +732,8 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Production server running on port ${PORT}`);
     console.log(`Static files path: ${staticPath}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log(`Environment: ${NODE_ENV}`);
+    console.log(`Health check available at: http://localhost:${PORT}/health`);
   });
 }
 startServer().catch(console.error);
