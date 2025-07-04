@@ -7,12 +7,15 @@ async function buildFrontend() {
   try {
     console.log('Building frontend with esbuild...');
     
-    // Create dist directory
+    // Create dist directory structure
     if (!fs.existsSync('dist')) {
       fs.mkdirSync('dist', { recursive: true });
     }
     if (!fs.existsSync('dist/public')) {
       fs.mkdirSync('dist/public', { recursive: true });
+    }
+    if (!fs.existsSync('dist/public/assets')) {
+      fs.mkdirSync('dist/public/assets', { recursive: true });
     }
 
     // Build the frontend

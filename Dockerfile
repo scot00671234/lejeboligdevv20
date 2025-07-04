@@ -20,8 +20,8 @@ RUN node build-frontend.js
 
 # Verify frontend build completed successfully
 RUN test -f /app/dist/public/index.html || (echo "Frontend build failed: index.html not found" && exit 1)
-RUN test -f /app/dist/public/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
-RUN test -f /app/dist/public/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
+RUN test -f /app/dist/public/assets/index.css || (echo "Frontend build failed: index.css not found" && exit 1)
+RUN test -f /app/dist/public/assets/index.js || (echo "Frontend build failed: index.js not found" && exit 1)
 
 # Build backend server
 RUN npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js

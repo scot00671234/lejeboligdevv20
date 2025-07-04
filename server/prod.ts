@@ -34,7 +34,12 @@ app.use(helmet({
 
 // CORS configuration for production
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://lejeboligfind.dk'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+    'https://lejeboligfind.dk',
+    'https://www.lejeboligfind.dk',
+    'http://lejeboligfind.dk',
+    'http://www.lejeboligfind.dk'
+  ],
   credentials: true,
   optionsSuccessStatus: 200
 }));
