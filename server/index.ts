@@ -8,6 +8,9 @@ import { config } from './config';
 
 const app = express();
 
+// Set the environment for Express - important for Vite setup
+app.set('env', config.NODE_ENV);
+
 // Trust proxy for rate limiting and security (needed for Coolify/reverse proxy setups)
 // In development, we still need to trust proxy due to Replit's forwarding
 app.set('trust proxy', true);

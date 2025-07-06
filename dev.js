@@ -1,11 +1,6 @@
 #!/usr/bin/env node
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import path from 'path';
 import dotenv from 'dotenv';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { spawn } from 'child_process';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -13,7 +8,7 @@ dotenv.config();
 // Set environment variables for development
 process.env.NODE_ENV = 'development';
 
-// Start the server
+// Start the server with tsx
 const server = spawn('tsx', ['server/index.ts'], {
   stdio: 'inherit',
   env: { ...process.env }
