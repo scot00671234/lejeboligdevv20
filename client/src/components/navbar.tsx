@@ -46,15 +46,15 @@ export default function Navbar() {
 
   // Default navbar for non-authenticated users
   return (
-    <nav className="glass sticky top-0 z-50 border-b border-gray-200/30">
-      <div className="container mx-auto px-6">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-12">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Home className="text-white h-4 w-4" />
               </div>
-              <span className="text-lg font-semibold text-gray-900 tracking-tight">Lejebolig Find</span>
+              <span className="text-lg font-semibold text-gray-900">Lejebolig Find</span>
             </Link>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -70,18 +70,16 @@ export default function Navbar() {
           </div>
           
           <div className="flex items-center space-x-3">
-            <div className="hidden md:flex items-center space-x-3">
-              <Link href="/login">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900 font-medium">
-                  Log ind
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm">
-                  Opret konto
-                </Button>
-              </Link>
-            </div>
+            <Link href="/login">
+              <Button variant="ghost" className="text-gray-600 hover:text-gray-900 font-medium">
+                Log ind
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg">
+                Opret konto
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

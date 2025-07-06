@@ -207,17 +207,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-6 py-12">
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Udlejer Dashboard</h1>
-          <p className="text-lg text-gray-600">Administrer dine boligannoncer</p>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">Dashboard</h1>
+          <p className="text-gray-600">Administrer dine boligannoncer</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-white border border-gray-200 shadow-sm">
-            <TabsTrigger value="properties" className="font-medium">Mine boliger</TabsTrigger>
-            <TabsTrigger value="create" className="font-medium">Opret ny bolig</TabsTrigger>
-            <TabsTrigger value="messages" className="font-medium">
+          <TabsList className="bg-white border border-gray-200/50 rounded-xl shadow-sm">
+            <TabsTrigger value="properties" className="font-medium rounded-lg">Mine boliger</TabsTrigger>
+            <TabsTrigger value="create" className="font-medium rounded-lg">Opret ny bolig</TabsTrigger>
+            <TabsTrigger value="messages" className="font-medium rounded-lg">
               <MessageCircle className="h-4 w-4 mr-2" />
               Beskeder
             </TabsTrigger>
@@ -227,12 +227,6 @@ export default function Dashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Mine boligannoncer</h2>
-              <Link href="/dashboard/create-property">
-                <Button className="bg-danish-blue hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Opret ny bolig
-                </Button>
-              </Link>
             </div>
 
             {isLoading ? (
@@ -255,13 +249,7 @@ export default function Dashboard() {
                 <CardContent className="pt-6 text-center">
                   <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Ingen boliger endnu</h3>
-                  <p className="text-gray-600 mb-4">Opret din første boligannonce for at komme i gang.</p>
-                  <Link href="/dashboard/create-property">
-                    <Button className="bg-danish-blue hover:bg-blue-700">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Opret bolig
-                    </Button>
-                  </Link>
+                  <p className="text-gray-600 mb-4">Brug "Opret ny bolig" fanen ovenfor for at komme i gang.</p>
                 </CardContent>
               </Card>
             ) : (

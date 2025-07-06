@@ -26,7 +26,7 @@ const pool = new Pool({
 
 const db = drizzle(pool);
 
-async function runMigrations() {
+export async function runMigrations() {
   console.log('🚀 Running migrations...');
   
   try {
@@ -34,10 +34,16 @@ async function runMigrations() {
     console.log('✅ Migrations completed successfully');
   } catch (error) {
     console.error('❌ Migration failed:', error);
-    process.exit(1);
+    throw error;
   } finally {
     await pool.end();
   }
 }
 
-runMigrations().catch(console.error);
+// Run migrations if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  runMigrations().catch((error) => {
+    console.error('❌ Migration failed:', error);
+    process.exit(1);
+  });
+}

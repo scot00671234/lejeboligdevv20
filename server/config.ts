@@ -17,7 +17,7 @@ export const config = {
   HOST: process.env.HOST || '0.0.0.0',
   NODE_ENV: process.env.NODE_ENV || 'development',
 
-  // CORS
+  // CORS - Railway requires flexible CORS
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5000'],
 
   // Security

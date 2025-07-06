@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { config } from './config';
 
 const app = express();
 
@@ -30,8 +31,8 @@ app.use(helmet({
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.ALLOWED_ORIGINS?.split(',') || ['https://lejeboligfind.dk']
+  origin: config.NODE_ENV === 'production' 
+    ? config.ALLOWED_ORIGINS || true // Allow all origins in production for Railway
     : ['http://localhost:5000', 'http://127.0.0.1:5000'],
   credentials: true,
   optionsSuccessStatus: 200
@@ -96,6 +97,20 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Auto-migrate database on startup for Railway deployment
+  if (config.NODE_ENV === 'production') {
+    try {
+      console.log('🚀 Running database migrations...');
+      const migrateModule = await import('../scripts/migrate.js');
+      await migrateModule.runMigrations();
+      console.log('✅ Database migrations completed');
+    } catch (error) {
+      console.error('❌ Database migration failed:', error);
+      // Don't exit in production, continue with existing schema
+      console.log('Continuing with existing database schema...');
+    }
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -120,10 +135,25 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Health check endpoints for Railway
+  app.get('/health', (_req: Request, res: Response) => {
+    res.json({ 
+      status: 'healthy', 
+      timestamp: new Date().toISOString(),
+      environment: config.NODE_ENV,
+      version: '1.0.0'
+    });
+  });
+
+  app.get('/ready', (_req: Request, res: Response) => {
+    res.json({ 
+      status: 'ready', 
+      timestamp: new Date().toISOString() 
+    });
+  });
+
+  // Use Railway's PORT or default to 5000
+  const port = config.PORT;
   server.listen({
     port,
     host: "0.0.0.0",
