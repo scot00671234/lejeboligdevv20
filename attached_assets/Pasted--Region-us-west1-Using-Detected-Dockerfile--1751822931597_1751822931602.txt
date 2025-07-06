@@ -1,0 +1,95 @@
+
+
+[Region: us-west1]
+
+=========================
+
+Using Detected Dockerfile
+
+=========================
+
+
+context: bm9z-LzlV
+
+[internal] load build definition from Dockerfile
+
+[internal] load build definition from Dockerfile  ✔ 0ms
+
+[internal] load build definition from Dockerfile
+
+[internal] load build definition from Dockerfile  ✔ 9ms
+
+[internal] load metadata for docker.io/library/node:20-alpine
+
+[auth] library/node:pull token for registry-1.docker.io
+
+[auth] library/node:pull token for registry-1.docker.io  ✔ 0ms
+
+[internal] load metadata for docker.io/library/node:20-alpine  ✔ 498ms
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore  ✔ 0ms
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore  ✔ 10ms
+
+[6/6] RUN npm run build
+
+[5/6] COPY . .
+
+[4/6] RUN npm ci --only=production && npm cache clean --force
+
+[3/6] COPY package.json package-lock.json* ./
+
+[internal] load build context
+
+[2/6] WORKDIR /app
+
+[1/6] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+
+[1/6] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+
+[internal] load build context
+
+[internal] load build context  ✔ 0ms
+
+[1/6] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11  ✔ 5ms
+
+[2/6] WORKDIR /app  ✔ 0ms – CACHED
+
+[internal] load build context
+
+[internal] load build context  ✔ 31ms
+
+[3/6] COPY package.json package-lock.json* ./
+
+[3/6] COPY package.json package-lock.json* ./  ✔ 23ms
+
+[4/6] RUN npm ci --only=production && npm cache clean --force
+
+npm warn config only Use `--omit=dev` to omit dev dependencies from the install.
+
+
+up to date, audited 1 package in 607ms
+
+
+found 0 vulnerabilities
+
+npm warn using --force Recommended protections disabled.
+
+[4/6] RUN npm ci --only=production && npm cache clean --force  ✔ 1s
+
+[5/6] COPY . .
+
+[5/6] COPY . .  ✔ 91ms
+
+[6/6] RUN npm run build
+
+
+> rest-express@1.0.0 build
+> vite build && npx esbuild server/prod.ts --platform=node --packages=external --bundle --format=esm --outfile=server-prod.js
+

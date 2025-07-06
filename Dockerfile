@@ -1,14 +1,17 @@
-# Use Node.js 20 LTS Alpine image
+# Use Node.js 20 Alpine for production
 FROM node:20-alpine
+
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY . .
@@ -16,12 +19,11 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Expose port
-EXPOSE $PORT
+# Remove dev dependencies after build
+RUN npm prune --production
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:$PORT/health || exit 1
+# Expose port
+EXPOSE 5000
 
 # Start the application
 CMD ["npm", "start"]

@@ -150,6 +150,14 @@ Changelog:
   * Health check endpoints for monitoring
   * Consolidated server architecture
   * Production-ready security configuration
+- July 06, 2025. Fixed startup issues and deployment configuration:
+  * Fixed npm run dev script to run Express server instead of Vite standalone
+  * Created automatic database table creation (zero-config PostgreSQL setup)
+  * Added proper Dockerfile with build dependencies
+  * Implemented robust database migration script with IF NOT EXISTS
+  * Fixed production server configuration (server/prod.ts)
+  * Added Railway deployment configuration
+  * Ensured database tables are created automatically on startup
 ```
 
 ## User Preferences
